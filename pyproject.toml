@@ -1,0 +1,69 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "sphinxcontrib-typstbuilder"
+version = "0.1.0"
+description = "Build PDF from your Sphinx documentation using Typst"
+readme = "README.md"
+requires-python = ">=3.8"
+license = "EUPL-1.2"
+keywords = ["sphinx", "typst"]
+authors = [{ name = "Minijackson", email = "minijackson@riseup.net" }]
+maintainers = [{ name = "Minijackson", email = "minijackson@riseup.net" }]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Framework :: Sphinx",
+  "Framework :: Sphinx :: Domain",
+  "Framework :: Sphinx :: Extension",
+  "License :: OSI Approved",
+  "License :: OSI Approved :: European Union Public Licence 1.2 (EUPL 1.2)",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3.8",
+  "Programming Language :: Python :: 3.9",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: Implementation :: CPython",
+  "Programming Language :: Python :: Implementation :: PyPy",
+  "Topic :: Documentation :: Sphinx",
+]
+dependencies = ["sphinx>=7.0.0"]
+
+[project.optional-dependencies]
+docs = ["furo", "myst-parser"]
+tests = ["pytest"]
+
+[project.urls]
+Documentation = "https://github.com/minijackson/sphinxcontrib-typstbuilder#readme"
+Issues = "https://github.com/minijackson/sphinxcontrib-typstbuilder/issues"
+Source = "https://github.com/minijackson/sphinxcontrib-typstbuilder"
+
+[tool.hatch.envs.docs]
+features = ["docs"]
+
+[tool.hatch.envs.types]
+extra-dependencies = ["mypy>=1.0.0"]
+
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/sphinxcontrib_typstbuilder tests}"
+
+[tool.coverage.run]
+source_pkgs = ["sphinxcontrib_typstbuilder", "tests"]
+branch = true
+parallel = true
+omit = ["src/sphinxcontrib_typstbuilder/__about__.py"]
+
+[tool.coverage.paths]
+sphinxcontrib_typstbuilder = [
+  "src/sphinxcontrib_typstbuilder",
+  "*/sphinxcontrib-typstbuilder/src/sphinxcontrib_typstbuilder",
+]
+tests = ["tests", "*/sphinxcontrib-typstbuilder/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
+
+[tool.ruff.lint]
+select = ["ALL"]
