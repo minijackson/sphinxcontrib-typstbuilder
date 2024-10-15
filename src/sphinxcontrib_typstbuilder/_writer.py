@@ -289,13 +289,12 @@ class TypstTranslator(SphinxTranslator):
     # Containers
 
     def visit_document(self, node: Element) -> None:
-        pass
+        self.pending_labels.append(document_label(node["docname"]))
 
     def depart_document(self, node: Element) -> None:
         pass
 
     def visit_start_of_file(self, node: Element) -> None:
-        # TODO: this doesn't seem to add the root document
         self.pending_labels.append(document_label(node["docname"]))
 
     def depart_start_of_file(self, node: Element) -> None:
