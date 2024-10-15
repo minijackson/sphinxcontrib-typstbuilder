@@ -533,7 +533,7 @@ class TypstTranslator(SphinxTranslator):
     # Admonitions
 
     def visit_admonition(self, _node: Element) -> None:
-        self.append_block_fun(name="clue")
+        self.append_block_fun(name="admonition")
 
     def depart_admonition(self, _node: Element) -> None:
         self.absorb_fun_in_body()

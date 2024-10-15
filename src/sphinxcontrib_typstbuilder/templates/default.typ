@@ -1,4 +1,4 @@
-#import "@preview/gentle-clues:1.0.0": *
+#import "@preview/gentle-clues:1.0.0"
 
 #let template(
   metadata: (),
@@ -36,3 +36,17 @@
 #let horizontalrule() = [
   #line(start: (25%, 0%), end: (75%, 0%))
 ]
+
+// Admonitions
+
+#let admonition = gentle-clues.clue.with(accent-color: purple)
+#let attention = gentle-clues.clue.with(title: "Attention", accent-color: red)
+#let caution = gentle-clues.clue.with(title: "Caution", accent-color: orange)
+#let danger = gentle-clues.clue.with(title: "Danger", accent-color: red)
+#let error = gentle-clues.clue.with(title: "Error", accent-color: red)
+#let hint = gentle-clues.clue.with(title: "Hint", accent-color: green)
+#let important = gentle-clues.clue.with(title: "Important", accent-color: orange)
+#let note = gentle-clues.clue.with(title: "Note", accent-color: blue)
+#let tip = gentle-clues.clue.with(title: "Tip", accent-color: green)
+#let warning = gentle-clues.clue.with(title: "Warning", accent-color: orange)
+#let seealso = gentle-clues.clue.with(title: "See also", accent-color: blue)
