@@ -52,6 +52,7 @@
             #   ];
             # }))
           ];
+          env.LAST_MODIFIED = self.lastModifiedDate;
         };
 
       packages.x86_64-linux = {
@@ -76,6 +77,7 @@
                   python.pkgs.sphinxHook
                   python.pkgs.pytestCheckHook
                 ];
+                env.LAST_MODIFIED = self.lastModifiedDate;
               });
           })
         ];

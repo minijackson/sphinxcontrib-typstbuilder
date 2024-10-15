@@ -18,6 +18,11 @@ release = "0.1.0"
 
 source_repository = "https://github.com/minijackson/sphinxcontrib-typstbuilder"
 
+today: str
+
+if date := os.environ.get("LAST_MODIFIED"):
+    today = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
+
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
 

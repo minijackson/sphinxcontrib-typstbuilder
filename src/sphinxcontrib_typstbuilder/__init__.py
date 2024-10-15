@@ -16,6 +16,8 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.require_sphinx("1.4")
     app.add_builder(TypstBuilder)
 
+    app.add_config_value("typst_template", "default", "", str)
+
     return {
         "version": "0.1.0",
         "parallel_read_safe": True,

@@ -272,46 +272,13 @@ class TypstTranslator(SphinxTranslator):
 
         content = self.curr_elements[0].to_text()
 
-        # TODO: write document metadata (like title, authors, etc.)
-        #       in a JSON file instead
-        return f"""#import "@preview/gentle-clues:1.0.0": *
+        return f"""
+#import "templates/{self.config.typst_template}.typ": *
 
-#let template(
-  title: none,
-  body,
-) = {{
-  set document(
-    title: title,
-  )
+#let metadata = json("metadata.json")
+#let label-aliases = metadata.at("label_aliases")
 
-  if title != none {{
-    align(center)[#block(inset: 2em)[
-      #text(weight: "bold", size: 1.5em)[#title]
-    ]]
-  }}
-
-  body
-}}
-
-#set heading(numbering: "1.")
-// #show heading.where(level: 1): it => {{ pagebreak(weak: true); it }}
-#show link: underline
-
-// TODO: proper admonitions
-#let note = info
-#let caution = danger
-
-#let horizontalrule() = [
-  #line(start: (25%,0%), end: (75%,0%))
-]
-
-#let label-aliases = json("label-aliases.json")
-
-#show: template.with(
-    title: {escape_str(self.document_title)}
-)
-
-#outline(indent: 2em)
+#show: template.with(metadata: metadata)
 
 {content}
 """

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from importlib import resources
 from pathlib import Path
 from typing import TYPE_CHECKING
 
@@ -9,6 +10,7 @@ from sphinx.util.console import darkgreen
 from sphinx.util.docutils import SphinxFileOutput
 from sphinx.util.nodes import inline_all_toctrees
 
+from . import templates
 from ._writer import TypstTranslator, TypstWriter, document_label
 
 if TYPE_CHECKING:
@@ -64,9 +66,28 @@ class TypstBuilder(Builder):
         docwriter = TypstWriter(self)
         docwriter.write(doctree, destination)
 
-        self._write_label_aliases(docwriter.label_aliases)
+        self._copy_template(self.config.typst_template)
+        self._write_metadata(docwriter.label_aliases)
 
-    def _write_label_aliases(self, aliases: dict[str, str]) -> None:
-        filepath = Path(self.outdir) / "label-aliases.json"
+    def _write_metadata(self, label_aliases: dict[str, str]) -> None:
+        filepath = Path(self.outdir) / "metadata.json"
         with filepath.open("w") as f:
-            json.dump(aliases, f)
+            json.dump(
+                {
+                    "title": self.config.project,
+                    "author": self.config.author,
+                    "date": self.config.today,
+                    "label_aliases": label_aliases,
+                },
+                f,
+            )
+
+    def _copy_template(self, template_name: str) -> None:
+        template_file = f"{template_name}.typ"
+
+        template_dest_path = Path(self.outdir) / "templates" / template_file
+        template_dest_path.parent.mkdir(exist_ok=True)
+
+        template_source_path = resources.files(templates) / template_file
+
+        template_dest_path.write_text(template_source_path.read_text())
