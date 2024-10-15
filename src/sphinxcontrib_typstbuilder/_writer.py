@@ -113,13 +113,18 @@ class InlineMarkupFunction(MarkupFunction):
 @dataclass
 class MarkupArg:
     body: list[str] = field(default_factory=list)
+    labels: list[str] = field(default_factory=list)
 
     def to_text(self) -> str:
         body = "".join(self.body).strip()
         if "\n" in body:
             body = "\n" + indent(body, "  ") + "\n"
 
-        return f"[{body}]"
+        labels = ""
+        for label in self.labels:
+            labels += f" <{label}>"
+
+        return f"[{body}{labels}]"
 
 
 @dataclass
@@ -222,15 +227,22 @@ class TypstTranslator(SphinxTranslator):
     def append_block_code_fun(self, *args, **kwargs) -> None:
         self.append_el(BlockCodeFunction(*args, **kwargs))
 
+    def register_labels(self, labels: list[str]) -> list[str]:
+        """Register a list of document labels, and return only the main one."""
+        if not labels:
+            return []
+
+        main_label = labels[0]
+
+        # TODO: handle labels, that can be duplicate across files
+        for label in labels:
+            self.label_aliases[label] = main_label
+
+        return [main_label]
+
     def absorb_fun_in_body(self) -> str:
         if self.pending_labels:
-            main_label = self.pending_labels[0]
-
-            # TODO: handle labels, that can be duplicate across files
-            for label in self.pending_labels:
-                self.label_aliases[label] = main_label
-
-            self.curr_element().labels = [main_label]
+            self.curr_element().labels = self.register_labels(self.pending_labels)
             self.pending_labels = []
 
         # self.curr_element().labels = self.pending_labels
@@ -475,7 +487,7 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().positional_params.append(el)
 
     def visit_term(self, node: Element) -> None:
-        self.append_el(MarkupArg())
+        self.append_el(MarkupArg(labels=self.register_labels(node["ids"])))
 
     def depart_term(self, _node: Element) -> None:
         el = self.pop_el()
