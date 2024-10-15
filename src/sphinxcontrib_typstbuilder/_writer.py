@@ -536,6 +536,24 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().body = []
         self.absorb_fun_in_body()
 
+    def visit_block_quote(self, _node: Element) -> None:
+        self.append_block_fun(name="quote", named_params={"block": "true"})
+
+    def depart_block_quote(self, node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    # Glossary / Indices
+
+    def visit_glossary(self, node: Element) -> None:
+        pass
+
+    def depart_glossary(self, node: Element) -> None:
+        pass
+
+    def visit_index(self, _node: Element) -> None:
+        # TODO
+        raise nodes.SkipNode
+
     # Admonitions
 
     def visit_admonition(self, _node: Element) -> None:
@@ -568,12 +586,10 @@ class TypstTranslator(SphinxTranslator):
     depart_tip = _depart_named_admonition
     visit_warning = _visit_named_admonition
     depart_warning = _depart_named_admonition
+    visit_seealso = _visit_named_admonition
+    depart_seealso = _depart_named_admonition
 
     # Others
-
-    def visit_index(self, _node: Element) -> None:
-        # TODO
-        raise nodes.SkipNode
 
     def visit_transition(self, _node: Element) -> None:
         self.append_block_fun(name="horizontalrule")
