@@ -55,3 +55,32 @@
   accent-color: orange,
 )
 #let seealso = gentle-clues.clue.with(title: _t("See also"), accent-color: blue)
+
+// Signatures
+
+#let _code_font = text.with(font: "DejaVu Sans Mono", size: 0.85em)
+#let _punct_font = _code_font.with(fill: luma(100))
+
+#let desc = block.with(inset: 1em)
+#let desc_name = _code_font.with(fill: rgb("#4b69c6"))
+#let desc_addname = _code_font.with(fill: rgb("#4b69c6").lighten(20%))
+
+#let desc_returns = _code_font
+
+#let desc_annotation = _code_font.with(fill: rgb("#40a02b"))
+#let desc_content = block.with(inset: (x: 2em))
+
+#let desc_parameterlist(
+  open_paren: "(",
+  close_paren: ")",
+  child_text_separator: ", ",
+  ..elements,
+) = {
+  _punct_font(open_paren)
+  _code_font(elements.pos().join(child_text_separator))
+  _code_font(close_paren, fill: luma(100))
+}
+
+#let desc_parameter(body) = body
+
+#let desc_sig_name(body) = body

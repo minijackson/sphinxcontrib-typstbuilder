@@ -565,6 +565,98 @@ class TypstTranslator(SphinxTranslator):
     visit_seealso = _visit_named_admonition
     depart_seealso = _depart_named_admonition
 
+    # Signatures / objects
+
+    def visit_desc(self, _node: Element) -> None:
+        self.append_block_fun(name="desc")
+
+    def depart_desc(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_signature(self, _node: Element) -> None:
+        pass
+
+    def depart_desc_signature(self, _node: Element) -> None:
+        pass
+
+    def visit_desc_name(self, node: Element) -> None:
+        self.append_inline_fun(
+            name="desc_name",
+            positional_params=[escape_raw_str(node.astext())],
+        )
+
+    def depart_desc_name(self, _node: Element) -> None:
+        self.curr_element().body = []
+        self.absorb_fun_in_body()
+
+    def visit_desc_addname(self, node: Element) -> None:
+        self.append_inline_fun(
+            name="desc_addname",
+            positional_params=[escape_raw_str(node.astext())],
+        )
+
+    def depart_desc_addname(self, _node: Element) -> None:
+        self.curr_element().body = []
+        self.absorb_fun_in_body()
+
+    def visit_desc_returns(self, node: Element) -> None:
+        self.append_inline_fun(
+            name="desc_returns",
+            positional_params=[escape_raw_str(node.astext())],
+        )
+
+    def depart_desc_returns(self, _node: Element) -> None:
+        self.curr_element().body = []
+        self.absorb_fun_in_body()
+
+    def visit_desc_annotation(self, node: Element) -> None:
+        self.append_inline_fun(
+            name="desc_annotation",
+            positional_params=[escape_raw_str(node.astext())],
+        )
+
+    def depart_desc_annotation(self, _node: Element) -> None:
+        self.curr_element().body = []
+        self.absorb_fun_in_body()
+
+    def visit_desc_content(self, _node: Element) -> None:
+        self.append_block_fun(name="desc_content")
+
+    def depart_desc_content(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_parameterlist(self, node: Element) -> None:
+        self.append_block_fun(
+            name="desc_parameterlist",
+            named_params={
+                "open_paren": '"("',
+                "close_paren": '")"',
+                "child_text_separator": '"' + node.child_text_separator + '"',
+            },
+        )
+
+    def depart_desc_parameterlist(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_parameter(self, _node: Element) -> None:
+        self.append_el(MarkupArg())
+        self.append_inline_fun(name="desc_parameter")
+
+    def depart_desc_parameter(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+        if self.pending_labels:
+            self.curr_element().labels = self.register_labels(self.pending_labels)
+            self.pending_labels = []
+
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_desc_sig_name(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_sig_name")
+
+    def depart_desc_sig_name(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
     # Others
 
     def visit_transition(self, _node: Element) -> None:
