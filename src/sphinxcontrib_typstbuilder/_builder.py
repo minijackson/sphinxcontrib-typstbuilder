@@ -6,6 +6,7 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from sphinx.builders import Builder
+from sphinx.locale import _
 from sphinx.util.console import darkgreen
 from sphinx.util.docutils import SphinxFileOutput
 from sphinx.util.nodes import inline_all_toctrees
@@ -77,6 +78,7 @@ class TypstBuilder(Builder):
                     "title": self.config.project,
                     "author": self.config.author,
                     "date": self.config.today,
+                    "language": self.config.language,
                     "label_aliases": label_aliases,
                 },
                 f,
@@ -84,10 +86,38 @@ class TypstBuilder(Builder):
 
     def _copy_template(self, template_name: str) -> None:
         template_file = f"{template_name}.typ"
+        templates_path = Path(self.outdir) / "templates"
 
-        template_dest_path = Path(self.outdir) / "templates" / template_file
+        template_dest_path = templates_path / template_file
         template_dest_path.parent.mkdir(exist_ok=True)
 
         template_source_path = resources.files(templates) / template_file
 
         template_dest_path.write_text(template_source_path.read_text())
+
+        language = self.config.language
+
+        translations_dest_path = templates_path / "lang.json"
+        translations = {}
+        for message in [
+            "Attention",
+            "Caution",
+            "Danger",
+            "Error",
+            "Hint",
+            "Important",
+            "Note",
+            "Tip",
+            "Warning",
+            "See also",
+        ]:
+            translations[message] = _(message)
+
+        with translations_dest_path.open("w") as f:
+            json.dump(
+                {
+                    "conf": {"default-lang": self.config.language},
+                    "lang": {language: translations},
+                },
+                f,
+            )
