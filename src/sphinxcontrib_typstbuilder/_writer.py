@@ -254,6 +254,15 @@ class TypstTranslator(SphinxTranslator):
         # TODO: error management
         # main_label = self.label_aliases[label]
         # return f"label({main_label})"
+
+        # TODO: this skips document for refs with anchors in other documents
+        # this means that there can be collision if same label in multiple documents
+        # if (pos := label.find("#")) != -1:
+        #     label = label[pos + 1:]
+
+        if (pos := label.find("#")) != -1:
+            label = label[:pos]
+
         return f"label(label-aliases.at({escape_str(label)}))"
 
     def body(self) -> str:
