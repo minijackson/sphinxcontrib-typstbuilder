@@ -17,6 +17,18 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TypstBuilder)
 
     app.add_config_value("typst_template", "default", "", str)
+    app.add_config_value(
+        "typst_documents",
+        [
+            {
+                "startdocname": "index",
+                "targetname": "main",
+                "title": app.config.project,
+            },
+        ],
+        "",
+        list[dict[str, str]],
+    )
 
     return {
         "version": "0.1.0",
