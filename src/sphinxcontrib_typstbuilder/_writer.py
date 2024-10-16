@@ -200,8 +200,6 @@ class TypstTranslator(SphinxTranslator):
         self.curr_elements = [Document()]
 
         self.this_is_the_title = True
-        self.document_title = ""
-        self.document_title_markup = "[]"
 
         self.pending_labels: list[str] = []
         self.label_aliases = {}
@@ -396,9 +394,7 @@ class TypstTranslator(SphinxTranslator):
             self.append_el(MarkupArg())
             return
 
-        # TODO: skip this, and use the title from the config instead?
         if self.this_is_the_title:
-            self.document_title = node.astext()
             self.this_is_the_title = False
             raise nodes.SkipNode
 
