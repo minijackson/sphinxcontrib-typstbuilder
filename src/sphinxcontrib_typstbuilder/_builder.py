@@ -41,7 +41,11 @@ class TypstBuilder(Builder):
         # ignore source path, it's a single document
         return self.get_target_uri(to, typ)
 
-    def _assemble_doctree(self, startdocname: str) -> nodes.document:
+    def _assemble_doctree(
+        self,
+        startdocname: str,
+        appendices: list[str],
+    ) -> nodes.document:
         tree = self.env.get_doctree(startdocname)
         tree = inline_all_toctrees(
             self,
@@ -52,6 +56,12 @@ class TypstBuilder(Builder):
             [startdocname],
         )
         tree["docname"] = startdocname
+
+        for docname in appendices:
+            appendix = self.env.get_doctree(docname)
+            appendix["docname"] = docname
+            tree.append(appendix)
+
         self.env.resolve_references(tree, startdocname, self)
         return tree
 
@@ -66,6 +76,7 @@ class TypstBuilder(Builder):
             targetname: str = document["targetname"]
             title: str = document["title"]
             template: str = document.get("template", self.config.typst_template)
+            appendices: str = document.get("appendices", [])
             extra_metadata: str = document.get("metadata", {})
 
             with progress_message(f"processing {startdocname}"):
@@ -74,6 +85,7 @@ class TypstBuilder(Builder):
                     targetname,
                     title,
                     template,
+                    appendices,
                     extra_metadata,
                 )
 
@@ -83,12 +95,13 @@ class TypstBuilder(Builder):
         targetname: str,
         title: str,
         template: str,
+        appendices: list[str],
         extra_metadata: dict[str, Any],
     ) -> None:
         outdir = Path(self.outdir) / targetname
         outdir.mkdir(exist_ok=True)
 
-        doctree = self._assemble_doctree(startdocname)
+        doctree = self._assemble_doctree(startdocname, appendices)
         destination = SphinxFileOutput(
             destination_path=outdir / f"{targetname}.typ",
             encoding="utf-8",
