@@ -138,11 +138,14 @@ class TypstBuilder(Builder):
         templates_path = outdir / "templates"
 
         template_dest_path = templates_path / template_file
+        common_dest_path = templates_path / "common.typ"
         template_dest_path.parent.mkdir(exist_ok=True)
 
         template_source_path = resources.files(templates) / template_file
+        common_source_path = resources.files(templates) / "common.typ"
 
         template_dest_path.write_text(template_source_path.read_text())
+        common_dest_path.write_text(common_source_path.read_text())
 
         language = self.config.language
 
