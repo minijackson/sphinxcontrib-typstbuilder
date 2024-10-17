@@ -608,8 +608,9 @@ class TypstTranslator(SphinxTranslator):
     def depart_desc(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_signature(self, _node: Element) -> None:
-        pass
+    def visit_desc_signature(self, node: Element) -> None:
+        if "ids" in node:
+            self.pending_labels += node["ids"]
 
     def depart_desc_signature(self, _node: Element) -> None:
         pass
