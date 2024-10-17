@@ -6,10 +6,11 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from sphinx.builders import Builder
-from sphinx.locale import _
+from sphinx.locale import _, __
 from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message
 from sphinx.util.docutils import SphinxFileOutput
+from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 
 from . import templates
@@ -79,15 +80,14 @@ class TypstBuilder(Builder):
             appendices: str = document.get("appendices", [])
             extra_metadata: str = document.get("metadata", {})
 
-            with progress_message(f"processing {startdocname}"):
-                self._write_doc(
-                    startdocname,
-                    targetname,
-                    title,
-                    template,
-                    appendices,
-                    extra_metadata,
-                )
+            self._write_doc(
+                startdocname,
+                targetname,
+                title,
+                template,
+                appendices,
+                extra_metadata,
+            )
 
     def _write_doc(
         self,
@@ -101,51 +101,32 @@ class TypstBuilder(Builder):
         outdir = Path(self.outdir) / targetname
         outdir.mkdir(exist_ok=True)
 
-        doctree = self._assemble_doctree(startdocname, appendices)
-        destination = SphinxFileOutput(
-            destination_path=outdir / f"{targetname}.typ",
-            encoding="utf-8",
-            overwrite_if_changed=True,
-        )
+        with progress_message(__("processing %s") % startdocname):
+            doctree = self._assemble_doctree(startdocname, appendices)
+            destination = SphinxFileOutput(
+                destination_path=outdir / f"{targetname}.typ",
+                encoding="utf-8",
+                overwrite_if_changed=True,
+            )
 
-        docwriter = TypstWriter(self)
-        docwriter.write(doctree, destination)
+            docwriter = TypstWriter(self)
+            docwriter.write(doctree, destination)
 
         self._copy_template(template, outdir)
         self._write_metadata(title, docwriter.label_aliases, extra_metadata, outdir)
 
-    def _write_metadata(
-        self,
-        title: str,
-        label_aliases: dict[str, str],
-        extra_metadata: dict[str, Any],
-        outdir: Path,
-    ) -> None:
-        filepath = outdir / "metadata.json"
-        metadata = {
-            "title": title,
-            "author": self.config.author,
-            "date": self.config.today,
-            "language": self.config.language,
-            "label_aliases": label_aliases,
-        }
-        metadata.update(extra_metadata)
-        with filepath.open("w") as f:
-            json.dump(metadata, f)
 
+    @progress_message("copying template files")
     def _copy_template(self, template_name: str, outdir: Path) -> None:
         template_file = f"{template_name}.typ"
         templates_path = outdir / "templates"
-
-        template_dest_path = templates_path / template_file
-        common_dest_path = templates_path / "common.typ"
-        template_dest_path.parent.mkdir(exist_ok=True)
+        templates_path.mkdir(exist_ok=True)
 
         template_source_path = resources.files(templates) / template_file
         common_source_path = resources.files(templates) / "common.typ"
 
-        template_dest_path.write_text(template_source_path.read_text())
-        common_dest_path.write_text(common_source_path.read_text())
+        copy_asset_file(template_source_path, templates_path)
+        copy_asset_file(common_source_path, templates_path)
 
         language = self.config.language
 
@@ -173,3 +154,23 @@ class TypstBuilder(Builder):
                 },
                 f,
             )
+
+    @progress_message("writing metadata")
+    def _write_metadata(
+        self,
+        title: str,
+        label_aliases: dict[str, str],
+        extra_metadata: dict[str, Any],
+        outdir: Path,
+    ) -> None:
+        filepath = outdir / "metadata.json"
+        metadata = {
+            "title": title,
+            "author": self.config.author,
+            "date": self.config.today,
+            "language": self.config.language,
+            "label_aliases": label_aliases,
+        }
+        metadata.update(extra_metadata)
+        with filepath.open("w") as f:
+            json.dump(metadata, f)
