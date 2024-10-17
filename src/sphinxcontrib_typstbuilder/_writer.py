@@ -471,6 +471,36 @@ class TypstTranslator(SphinxTranslator):
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
+    # Field lists
+
+    def visit_field_list(self, _node: Element) -> None:
+        # TODO: style it differently?
+        self.append_block_fun(name="terms")
+
+    def depart_field_list(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_field(self, node: Element) -> None:
+        self.append_block_code_fun(name="terms.item")
+
+    def depart_field(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_field_name(self, node: Element) -> None:
+        self.append_el(MarkupArg(labels=self.register_labels(node["ids"])))
+
+    def depart_field_name(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_field_body(self, node: Element) -> None:
+        self.append_el(MarkupArg())
+
+    def depart_field_body(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
     # Figures / Images / Code blocks
 
     def visit_figure(self, node: Element) -> None:
