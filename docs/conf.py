@@ -39,7 +39,7 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for Typst output ------------------------------------------------
 # https://minijackson.github.io/sphinxcontrib-typstbuilder/configuration.html
 
-typst_template = "default"
+typst_template = "ilm"
 
 typst_documents = [
     {
