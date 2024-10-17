@@ -25,7 +25,11 @@ Cross-references
 Inline code highlighting
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
+.. role:: python(code)
+   :language: python
+
 :Code: :code:`1 + 2`
+:Python code: :python:`print(1 + 2)`
 
 Math
 ^^^^

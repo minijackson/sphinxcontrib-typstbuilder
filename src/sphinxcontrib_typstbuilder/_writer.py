@@ -344,9 +344,13 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_literal(self, node: Element) -> None:
-        # TODO: language
+        lang = node.get("language", None)
+        named_params = {}
+        if lang:
+            named_params["lang"] = escape_str(lang)
         self.append_inline_fun(
             name="raw",
+            named_params=named_params,
             positional_params=[escape_raw_str(node.astext())],
         )
 
