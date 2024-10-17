@@ -519,6 +519,7 @@ class TypstTranslator(SphinxTranslator):
     def depart_figure(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
+    # TODO: visit_legend
     def visit_caption(self, node: Element) -> None:
         self.append_el(MarkupArg())
 
@@ -527,13 +528,10 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().named_params["caption"] = el
 
     def visit_image(self, node: Element) -> None:
-        print("-----")
-        print(node)
-        print("-----")
-        # TODO:
-        self.append_inline_fun(name="rect")
+        image = self.builder.images[node["uri"]]
+        self.append_inline_fun(name="image", positional_params=[escape_raw_str(image)])
 
-    def depart_image(self, node: Element) -> None:
+    def depart_image(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_literal_block(self, node: Element) -> None:

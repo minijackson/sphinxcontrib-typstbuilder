@@ -6,9 +6,10 @@ from pathlib import Path
 from typing import TYPE_CHECKING, Any
 
 from sphinx.builders import Builder
+from sphinx.environment.adapters.asset import ImageAdapter
 from sphinx.locale import _, __
 from sphinx.util.console import darkgreen
-from sphinx.util.display import progress_message
+from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput
 from sphinx.util.fileutil import copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
@@ -26,7 +27,14 @@ class TypstBuilder(Builder):
     name = "typst"
     format = "typst"
 
-    # supported_image_types: list[str] = []
+    # See: https://typst.app/docs/reference/visualize/image/
+    supported_image_types: tuple[str] = (
+        "image/png",
+        "image/jpeg",
+        "image/gif",
+        "image/svg+xml",
+    )
+
     default_translator_class = TypstTranslator
 
     def init(self) -> None:
@@ -109,12 +117,28 @@ class TypstBuilder(Builder):
                 overwrite_if_changed=True,
             )
 
+            self.images = {}
+            self.post_process_images(doctree)
+
             docwriter = TypstWriter(self)
             docwriter.write(doctree, destination)
 
+        self._copy_images(outdir)
         self._copy_template(template, outdir)
         self._write_metadata(title, docwriter.label_aliases, extra_metadata, outdir)
 
+    def _copy_images(self, outdir: Path) -> None:
+        # for image in self.images:
+        stringify_func = ImageAdapter(self.app.env).get_original_image_uri
+        for image in status_iterator(
+            self.images,
+            __("copying images... "),
+            "brown",
+            len(self.images),
+            self.app.verbosity,
+            stringify_func=stringify_func,
+        ):
+            copy_asset_file(self.srcdir / image, outdir / self.images[image])
 
     @progress_message("copying template files")
     def _copy_template(self, template_name: str, outdir: Path) -> None:

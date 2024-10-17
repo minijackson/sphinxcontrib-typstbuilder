@@ -88,6 +88,19 @@ Other semantic markup
 RST Directives
 --------------
 
+Images
+^^^^^^
+
+Inline image:
+
+.. image:: drawing.svg
+
+.. figure:: drawing.svg
+   :alt: Figure
+   :width: 100%
+
+   This is a figure
+
 RST Admonitions
 ^^^^^^^^^^^^^^^
 
