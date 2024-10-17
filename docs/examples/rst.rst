@@ -1,8 +1,11 @@
 reStructured text
 =================
 
+RST Markup
+----------
+
 Inline markup
--------------
+^^^^^^^^^^^^^
 
 *emphasis*,
 **strong emphasis**,
@@ -16,11 +19,33 @@ Inline markup
 
 .. _reference to title:
 
+Lists
+^^^^^
+
+- hello 1,
+  hello 1.5
+
+  hello 1.75
+- hello 2
+- hello 3
+
+  - hello 4
+
+    - hello 5
+
+#. hello 4
+#. hello 5
+#. hello 6
+
 RST Roles
 ---------
 
 Cross-references
 ^^^^^^^^^^^^^^^^
+
+:Ref: :ref:`reference to title`
+:Doc: :doc:`md`
+:Doc: :doc:`With custom title <md>`
 
 Inline code highlighting
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -60,8 +85,11 @@ Other semantic markup
 :PEP: :pep:`8`
 :RFC: :rfc:`2324`
 
+RST Directives
+--------------
+
 RST Admonitions
----------------
+^^^^^^^^^^^^^^^
 
 .. admonition:: title
 
@@ -72,30 +100,3 @@ RST Admonitions
 .. tip::
 
    world
-
-
-RST Links
----------
-
-- :ref:`reference to title`
-- :doc:`md`
-- :doc:`With custom title <md>`
-
-Lists
------
-
-- hello 1,
-  hello 1.5
-
-  hello 1.75
-- hello 2
-- hello 3
-
-  - hello 4
-
-    - hello 5
-
-#. hello 4
-#. hello 5
-#. hello 6
-
