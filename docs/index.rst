@@ -2,8 +2,6 @@ sphinxcontrib-typstbuilder documentation
 ========================================
 
 .. toctree::
+   configuration
+   writing-templates
    examples/index
-
-.. comment:
-   * :ref:`genindex`
-   * :ref:`modindex`
