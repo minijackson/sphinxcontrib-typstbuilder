@@ -16,6 +16,46 @@ Inline markup
 
 .. _reference to title:
 
+RST Roles
+---------
+
+Cross-references
+^^^^^^^^^^^^^^^^
+
+Inline code highlighting
+^^^^^^^^^^^^^^^^^^^^^^^^
+
+:Code: :code:`1 + 2`
+
+Math
+^^^^
+
+.. :Math: :math:`a^2 + b^2 = c^2`
+.. :Eq: :eq:`a^2 + b^2 = c^2`
+
+Other semantic markup
+^^^^^^^^^^^^^^^^^^^^^
+
+.. :Abbreviation: :abbr:`LIFO (last-in, first-out)`
+:Command: :command:`rm`
+:Definition: :dfn:`binary mode`
+:File: :file:`/usr/lib/python3.{x}/site-packages`
+:GUI Label: :guilabel:`&Cancel`
+:Keystrokes: :guilabel:`Control-x Control-f`
+:Mail header: :mailheader:`Content-Type`
+:Make variable: :makevar:`help`
+.. :Man page: :manpage:`ls(1)`
+:Menu selection: :menuselection:`Start --> Programs`
+:MIME type: :mimetype:`text/plain`
+:Newsgroup: :newsgroup:`comp.lang.python`
+:Program: :program:`curl`
+:Regular expression: :regexp:`([abc])+`
+:Samp: :samp:`print(1+{variable})`
+.. :CVE: :cve:`2020-10735`
+.. :CWE: :cwe:`787`
+:PEP: :pep:`8`
+:RFC: :rfc:`2324`
+
 RST Admonitions
 ---------------
 
