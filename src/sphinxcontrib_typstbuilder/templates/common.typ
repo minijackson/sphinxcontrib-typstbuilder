@@ -10,6 +10,10 @@
   #line(start: (25%, 0%), end: (75%, 0%))
 ]
 
+// Roles
+
+#let literal = text.with(font: "DejaVu Sans Mono", size: 9pt)
+
 // Admonitions
 
 #let admonition = gentle-clues.clue.with(accent-color: purple)

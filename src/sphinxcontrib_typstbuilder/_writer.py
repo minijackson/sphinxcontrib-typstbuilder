@@ -345,6 +345,11 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_literal(self, node: Element) -> None:
         lang = node.get("language", None)
+
+        if "code" not in node["classes"] or not lang:
+            self.append_inline_fun("literal")
+            return
+
         named_params = {}
         if lang:
             named_params["lang"] = escape_str(lang)
@@ -353,9 +358,10 @@ class TypstTranslator(SphinxTranslator):
             named_params=named_params,
             positional_params=[escape_raw_str(node.astext())],
         )
+        self.absorb_fun_in_body()
+        raise nodes.SkipNode
 
     def depart_literal(self, _node: Element) -> None:
-        self.curr_element().body = []
         self.absorb_fun_in_body()
 
     def visit_inline(self, node: Element) -> None:

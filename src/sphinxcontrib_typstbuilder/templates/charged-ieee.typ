@@ -1,5 +1,7 @@
 #import "@preview/charged-ieee:0.1.2": ieee
 
+#import "common.typ": *
+
 #let template(
   metadata: (),
   doc,
