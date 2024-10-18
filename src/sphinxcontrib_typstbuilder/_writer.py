@@ -364,12 +364,27 @@ class TypstTranslator(SphinxTranslator):
     def depart_literal(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    # Roles
+
     def visit_inline(self, node: Element) -> None:
         # TODO: check for classes, e.g. "menuselection", "guilabel"
         pass
 
     def depart_inline(self, _node: Element) -> None:
         pass
+
+    def visit_abbreviation(self, node: Element) -> None:
+        named_params = {}
+        if node.hasattr("explanation"):
+            named_params["explanation"] = escape_str(node["explanation"])
+
+        self.append_inline_fun(
+            name="abbreviation",
+            named_params=named_params,
+            positional_params=[escape_str(node.astext())],
+        )
+        self.absorb_fun_in_body()
+        raise nodes.SkipNode
 
     # Links
 

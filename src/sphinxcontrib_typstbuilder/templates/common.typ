@@ -30,6 +30,19 @@
 
 #let literal = text.with(font: "DejaVu Sans Mono", size: 9pt)
 
+// inspired by the acrostiche package
+#let abbreviation(explanation: none, abbr) = {
+  let state-key = "abbreviation-state-" + abbr
+  let displayed = state(state-key, false)
+  context {
+    smallcaps(abbr)
+    if not displayed.get() {
+      displayed.update(true)
+      [ (#explanation)]
+    }
+  }
+}
+
 // Admonitions
 
 #let admonition = gentle-clues.clue.with(accent-color: purple)

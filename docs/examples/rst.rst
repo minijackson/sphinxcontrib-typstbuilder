@@ -65,7 +65,9 @@ Math
 Other semantic markup
 ^^^^^^^^^^^^^^^^^^^^^
 
-.. :Abbreviation: :abbr:`LIFO (last-in, first-out)`
+:Abbreviation:
+    - First call: :abbr:`Lifo (last-in, first-out)`
+    - Following calls: :abbr:`Lifo (last-in, first-out)`
 :Command: :command:`rm`
 :Definition: :dfn:`binary mode`
 :File: :file:`/usr/lib/python3.{x}/site-packages`
