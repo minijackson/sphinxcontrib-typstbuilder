@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from os import path
 from typing import TYPE_CHECKING
 
 from ._builder import TypstBuilder
@@ -17,6 +18,12 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_builder(TypstBuilder)
 
     app.add_config_value("typst_template", "default", "", str)
+    app.add_config_value(
+        "typst_templates_path",
+        [path.join(p, "typst") for p in app.config.templates_path],  # noqa: PTH118
+        "",
+        list[str],
+    )
     app.add_config_value(
         "typst_documents",
         [

@@ -7,11 +7,12 @@ from typing import TYPE_CHECKING, Any
 
 from sphinx.builders import Builder
 from sphinx.environment.adapters.asset import ImageAdapter
+from sphinx.errors import ConfigError
 from sphinx.locale import _, __
 from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput
-from sphinx.util.fileutil import copy_asset_file
+from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
 
 from . import templates
@@ -142,19 +143,33 @@ class TypstBuilder(Builder):
 
     @progress_message("copying template files")
     def _copy_template(self, template_name: str, outdir: Path) -> None:
-        template_file = f"{template_name}.typ"
-        templates_path = outdir / "templates"
-        templates_path.mkdir(exist_ok=True)
+        # Find which of the template dir contains the template with the given name
+        templates_dest_dir = outdir / "templates"
 
-        template_source_path = resources.files(templates) / template_file
-        common_source_path = resources.files(templates) / "common.typ"
+        template_name = f"{template_name}.typ"
+        templates_source_dir = resources.files(templates)
+        template_file = templates_source_dir / template_name
 
-        copy_asset_file(template_source_path, templates_path)
-        copy_asset_file(common_source_path, templates_path)
+        if not template_file.is_file():
+            # Maybe a custom template
+            for t in self.config.typst_templates_path:
+                templates_source_dir = Path(t)
+                template_file = templates_source_dir / template_name
+
+                if template_file.is_file():
+                    break
+            else:
+                msg = f"No built-in or custom template named {template_name!r}"
+                raise ConfigError(msg)
+
+        # Copy the whole directory,
+        # since there could be assets
+        with resources.as_file(templates_source_dir) as templates_source_dir:
+            copy_asset(templates_source_dir, templates_dest_dir)
 
         language = self.config.language
 
-        translations_dest_path = templates_path / "lang.json"
+        translations_dest_path = templates_dest_dir / "lang.json"
         translations = {}
         for message in [
             "Attention",
