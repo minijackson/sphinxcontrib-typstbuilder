@@ -331,7 +331,17 @@ class TypstTranslator(SphinxTranslator):
     def depart_title_reference(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    # Roles
+
     def visit_literal(self, node: Element) -> None:
+        if "kbd" in node["classes"]:
+            self.append_inline_fun(
+                name="kbd",
+                positional_params=[escape_str(node.astext())],
+            )
+            self.absorb_fun_in_body()
+            raise nodes.SkipNode
+
         lang = node.get("language", None)
 
         if "code" not in node["classes"] or not lang:
@@ -351,8 +361,6 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_literal(self, _node: Element) -> None:
         self.absorb_fun_in_body()
-
-    # Roles
 
     def visit_inline(self, node: Element) -> None:
         # TODO: check for classes, e.g. "menuselection", "guilabel"

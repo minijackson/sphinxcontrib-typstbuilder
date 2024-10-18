@@ -43,6 +43,25 @@
   }
 }
 
+// inspired by keyle
+#let kbd(sequences) = {
+  let _kbd_sym = box.with(
+    inset: (x: 5pt),
+    outset: (x: -2pt, y: 3pt),
+    radius: 2pt,
+    stroke: 1pt,
+  )
+  let _kbd(..keys) = keys.pos().map(_kbd_sym).join("-")
+
+  sequences
+    .split()
+    .map(sequence => {
+        let keys = sequence.split(regex("[+-]"))
+        _kbd(..keys)
+      })
+    .join(" ")
+}
+
 // Admonitions
 
 #let admonition = gentle-clues.clue.with(accent-color: purple)

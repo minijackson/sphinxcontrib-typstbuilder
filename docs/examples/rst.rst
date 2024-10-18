@@ -72,7 +72,7 @@ Other semantic markup
 :Definition: :dfn:`binary mode`
 :File: :file:`/usr/lib/python3.{x}/site-packages`
 :GUI Label: :guilabel:`&Cancel`
-:Keystrokes: :guilabel:`Control-x Control-f`
+:Keystrokes: :kbd:`Control-x Control-f`
 :Mail header: :mailheader:`Content-Type`
 :Make variable: :makevar:`help`
 .. :Man page: :manpage:`ls(1)`
