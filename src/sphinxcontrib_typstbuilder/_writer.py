@@ -344,7 +344,9 @@ class TypstTranslator(SphinxTranslator):
 
         lang = node.get("language", None)
 
-        if "code" not in node["classes"] or not lang:
+        if lang is None and "regexp" in node["classes"]:
+            lang = "regexp"
+        elif "code" not in node["classes"] or not lang:
             self.append_inline_fun("literal")
             return
 
