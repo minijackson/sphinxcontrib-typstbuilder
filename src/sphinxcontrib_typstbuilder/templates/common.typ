@@ -28,6 +28,8 @@
 
 // Roles
 
+#let inline(body) = body
+
 #let literal = text.with(font: "DejaVu Sans Mono", size: 9pt)
 
 // inspired by the acrostiche package
@@ -43,15 +45,17 @@
   }
 }
 
+
+#let _ui_element = box.with(
+  inset: (x: 5pt),
+  outset: (x: -2pt, y: 4pt),
+  radius: 2pt,
+  stroke: 1pt,
+)
+
 // inspired by keyle
 #let kbd(sequences) = {
-  let _kbd_sym = box.with(
-    inset: (x: 5pt),
-    outset: (x: -2pt, y: 3pt),
-    radius: 2pt,
-    stroke: 1pt,
-  )
-  let _kbd(..keys) = keys.pos().map(_kbd_sym).join("-")
+  let _kbd(..keys) = keys.pos().map(_ui_element).join("-")
 
   sequences
     .split()
@@ -61,6 +65,10 @@
       })
     .join(" ")
 }
+
+#let accelerator = underline
+#let menuselection = _ui_element
+#let guilabel = _ui_element
 
 // Admonitions
 

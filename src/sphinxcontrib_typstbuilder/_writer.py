@@ -363,11 +363,22 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_inline(self, node: Element) -> None:
-        # TODO: check for classes, e.g. "menuselection", "guilabel"
-        pass
+        if "accelerator" in node["classes"]:
+            self.append_inline_fun(name="accelerator")
+            return
+
+        if "menuselection" in node["classes"]:
+            self.append_inline_fun(name="menuselection")
+            return
+
+        if "guilabel" in node["classes"]:
+            self.append_inline_fun(name="guilabel")
+            return
+
+        self.append_inline_fun(name="inline")
 
     def depart_inline(self, _node: Element) -> None:
-        pass
+        self.absorb_fun_in_body()
 
     def visit_abbreviation(self, node: Element) -> None:
         named_params = {}
