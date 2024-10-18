@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from enum import Enum
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, cast
 
@@ -32,17 +31,6 @@ class TypstWriter(writers.Writer):
         translator = cast(TypstTranslator, visitor)
         self.output = translator.body()
         self.label_aliases = translator.label_aliases
-
-
-# class EvalMode(Enum):
-#     """The syntactical mode in which the current Typst code is.
-#
-#     See https://typst.app/docs/reference/foundations/eval/#parameters-mode
-#     """
-#
-#     CODE = 1
-#     MARKUP = 2
-#     MATH = 3
 
 
 @dataclass
@@ -404,7 +392,6 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_reference(self, _node: Element) -> None:
         self.absorb_fun_in_body()
-        pass
 
     def visit_target(self, node: Element) -> None:
         pass
