@@ -206,7 +206,11 @@ class TypstBuilder(Builder):
         metadata = {
             "title": title,
             "author": self.config.author,
-            "date": self.config.today,
+            "date": {
+                "year": self.config.typst_date.year,
+                "month": self.config.typst_date.month,
+                "day": self.config.typst_date.day,
+            },
             "language": self.config.language,
             "label_aliases": label_aliases,
         }

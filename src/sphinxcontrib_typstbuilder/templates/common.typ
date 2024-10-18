@@ -1,10 +1,26 @@
 #import "@preview/gentle-clues:1.0.0"
 #import "@preview/linguify:0.4.1"
 
+// Utilities
+
 #let _translations = json("lang.json")
 #let _t(content) = {
   linguify.linguify(content, from: _translations)
 }
+
+// Given a dictionnary of year, month, date,
+// return a datetime object
+#let get_date(date) = {
+  if date != none {
+    datetime(
+      year: date.at("year"),
+      month: date.at("month"),
+      day: date.at("day"),
+    )
+  }
+}
+
+// Functions from RST
 
 #let horizontalrule() = [
   #line(start: (25%, 0%), end: (75%, 0%))

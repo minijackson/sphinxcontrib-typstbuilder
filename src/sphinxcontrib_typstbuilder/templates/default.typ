@@ -6,7 +6,7 @@
 ) = {
   let title = metadata.at("title")
   let author = metadata.at("author")
-  let date = metadata.at("date")
+  let date = get_date(metadata.at("date", default: none))
   let language = metadata.at("language")
 
   set text(lang: language)
@@ -14,7 +14,7 @@
   set document(
     title: title,
     author: author,
-    //date: date,
+    date: date,
   )
 
   set heading(numbering: "1.")
@@ -28,7 +28,10 @@
       #text(weight: "bold", size: 1.5em)[#title]
     ]
     #block(inset: 0.5em)[#author]
-    #block(inset: 0.5em)[#date]
+
+    #if date != none {
+      block(inset: 0.5em)[#date.display()]
+    }
   ]
 
   outline(indent: 2em)

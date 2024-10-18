@@ -5,6 +5,7 @@
 
 import os
 import sys
+from datetime import date
 
 sys.path.append(os.path.abspath("../src"))  # noqa: PTH100
 
@@ -20,8 +21,8 @@ source_repository = "https://github.com/minijackson/sphinxcontrib-typstbuilder"
 
 today: str
 
-if date := os.environ.get("LAST_MODIFIED"):
-    today = f"{date[:4]}-{date[4:6]}-{date[6:8]}"
+if date_s := os.environ.get("LAST_MODIFIED"):
+    today = f"{date_s[:4]}-{date_s[4:6]}-{date_s[6:8]}"
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
@@ -40,6 +41,14 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # https://minijackson.github.io/sphinxcontrib-typstbuilder/configuration.html
 
 typst_template = "ilm"
+typst_date: date
+
+if date_s := os.environ.get("LAST_MODIFIED"):
+    typst_date = date(
+        year=int(date_s[:4]),
+        month=int(date_s[4:6]),
+        day=int(date_s[6:8]),
+    )
 
 typst_documents = [
     {

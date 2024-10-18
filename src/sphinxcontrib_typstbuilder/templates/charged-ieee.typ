@@ -8,7 +8,7 @@
 ) = {
   let title = metadata.at("title")
   let author = metadata.at("author")
-  let date = metadata.at("date")
+  let date = get_date(metadata.at("date", default: none))
   let language = metadata.at("language")
 
   set text(lang: language)

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from datetime import date
 from os import path
 from typing import TYPE_CHECKING
 
@@ -24,6 +25,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         "",
         list[str],
     )
+    app.add_config_value("typst_date", date.today(), "", date)
     app.add_config_value(
         "typst_documents",
         [
