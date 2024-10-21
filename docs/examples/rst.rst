@@ -43,7 +43,9 @@ RST Roles
 Cross-references
 ^^^^^^^^^^^^^^^^
 
-:Ref: :ref:`reference to title`
+:Ref:
+    - To a title: :ref:`reference to title`
+    - To a figure: :ref:`Drawing`
 :Doc: :doc:`md`
 :Doc: :doc:`With custom title <md>`
 
@@ -99,6 +101,7 @@ Inline image:
 
 .. figure:: drawing.svg
    :alt: Figure
+   :name: Drawing
    :width: 100%
 
    This is a figure

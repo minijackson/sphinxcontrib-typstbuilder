@@ -537,7 +537,7 @@ class TypstTranslator(SphinxTranslator):
     # Figures / Images / Code blocks
 
     def visit_figure(self, node: Element) -> None:
-        self.append_block_fun(name="figure")
+        self.append_block_fun(name="figure", labels=self.register_labels(node["ids"]))
 
     def depart_figure(self, node: Element) -> None:
         self.absorb_fun_in_body()
