@@ -30,10 +30,10 @@ class TypstBuilder(Builder):
 
     # See: https://typst.app/docs/reference/visualize/image/
     supported_image_types: tuple[str] = (
+        "image/svg+xml",
         "image/png",
         "image/jpeg",
         "image/gif",
-        "image/svg+xml",
     )
 
     default_translator_class = TypstTranslator
