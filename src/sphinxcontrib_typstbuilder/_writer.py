@@ -423,7 +423,7 @@ class TypstTranslator(SphinxTranslator):
     # ...
 
     def visit_title(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.Admonition):
+        if isinstance(node.parent, (nodes.Admonition, nodes.table)):
             self.append_el(MarkupArg())
             return
 
@@ -437,6 +437,12 @@ class TypstTranslator(SphinxTranslator):
         if isinstance(node.parent, nodes.Admonition):
             el = self.pop_el()
             self.curr_element().named_params["title"] = el
+            return
+
+        if isinstance(node.parent, nodes.table):
+            el = self.pop_el()
+            # -1 is the table, -2 is the figure
+            self.curr_elements[-2].named_params["caption"] = el
             return
 
         self.absorb_fun_in_body()
@@ -573,6 +579,63 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_block_quote(self, node: Element) -> None:
         self.absorb_fun_in_body()
+
+    # Tables
+
+    def visit_table(self, node: Element) -> None:
+        self.append_block_fun(name="figure", labels=self.register_labels(node["ids"]))
+        self.append_block_fun(name="table")
+
+    def depart_table(self, node: Element) -> None:
+        self.absorb_fun_in_body()
+        self.absorb_fun_in_body()
+
+    def visit_tgroup(self, node: Element) -> None:
+        self.curr_element().named_params["columns"] = str(node["cols"])
+
+    def depart_tgroup(self, node: Element) -> None:
+        pass
+
+    def visit_colspec(self, node: Element) -> None:
+        # TODO
+        raise nodes.SkipNode
+
+    def depart_colspec(self, node: Element) -> None:
+        pass
+
+    def visit_thead(self, node: Element) -> None:
+        self.append_inline_code_fun(name="table.header")
+
+    def depart_thead(self, node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_tbody(self, node: Element) -> None:
+        pass
+
+    def depart_tbody(self, node: Element) -> None:
+        pass
+
+    def visit_row(self, node: Element) -> None:
+        pass
+
+    def depart_row(self, node: Element) -> None:
+        pass
+
+    def visit_entry(self, node: Element) -> None:
+        colspan = 1 + node.get("morecols", 0)
+        rowspan = 1 + node.get("morerows", 0)
+        self.append_inline_code_fun(
+            "table.cell",
+            named_params={
+                "colspan": colspan,
+                "rowspan": rowspan,
+            },
+        )
+
+    def depart_entry(self, node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
 
     # Glossary / Indices
 
