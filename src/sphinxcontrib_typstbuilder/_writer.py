@@ -602,7 +602,8 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_tgroup(self, node: Element) -> None:
-        self.curr_element().named_params["columns"] = str(node["cols"])
+        cols = max(node["cols"], 1)
+        self.curr_element().named_params["columns"] = str(cols)
 
     def depart_tgroup(self, node: Element) -> None:
         pass
