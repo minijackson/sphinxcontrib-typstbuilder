@@ -26,6 +26,9 @@
   #line(start: (25%, 0%), end: (75%, 0%))
 ]
 
+#let line_block = block.with(inset: (left: 8pt), above: .6em, below: .6em)
+#let line_block_line = block
+
 // Roles
 
 #let inline(body) = body

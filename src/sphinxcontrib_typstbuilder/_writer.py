@@ -637,6 +637,20 @@ class TypstTranslator(SphinxTranslator):
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
+    # Line blocks
+
+    def visit_line_block(self, node: Element) -> None:
+        self.append_block_fun(name="line_block")
+
+    def depart_line_block(self, node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_line(self, node: Element) -> None:
+        self.append_inline_fun(name="line_block_line")
+
+    def depart_line(self, node: Element) -> None:
+        self.absorb_fun_in_body()
+
     # Glossary / Indices
 
     def visit_glossary(self, node: Element) -> None:
