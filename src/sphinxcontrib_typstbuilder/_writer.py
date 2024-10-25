@@ -50,6 +50,7 @@ class CodeFunction:
     positional_params: list[str] = field(default_factory=list)
     body: list[str] = field(default_factory=list)
     labels: list[str] = field(default_factory=list)
+    force_body: bool = False
 
     def to_text(self) -> str:
         named = ""
@@ -65,6 +66,8 @@ class CodeFunction:
             body = "\n" + indent(body, "  ") + "\n"
         if body != "":
             body = f"[{body}]"
+        elif self.force_body:
+            body = "[]"
 
         labels = ""
         for label in self.labels:
@@ -177,6 +180,10 @@ def escape_markup(s: str) -> str:
         .replace("$", "\\$")
         .replace("#", "\\#")
     )
+
+def to_str_list(l: list[str]) -> str:
+    inside = ",".join(escape_str(el) for el in l)
+    return f"({inside})"
 
 
 class TypstTranslator(SphinxTranslator):
@@ -377,7 +384,11 @@ class TypstTranslator(SphinxTranslator):
             self.append_inline_fun(name="guilabel")
             return
 
-        self.append_inline_fun(name="inline")
+        self.append_inline_fun(
+            name="inline",
+            named_params={"classes": to_str_list(node["classes"])},
+            force_body=True,
+        )
 
     def depart_inline(self, _node: Element) -> None:
         self.absorb_fun_in_body()

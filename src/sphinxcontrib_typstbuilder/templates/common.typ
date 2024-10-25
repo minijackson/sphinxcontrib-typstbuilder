@@ -31,7 +31,7 @@
 
 // Roles
 
-#let inline(body) = body
+#let inline(classes: (), body) = body
 
 #let literal = text.with(font: "DejaVu Sans Mono", size: 9pt)
 
