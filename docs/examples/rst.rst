@@ -68,6 +68,7 @@ Cross-references
     - To a table: :ref:`Table`
 :Doc: :doc:`md`
 :Doc: :doc:`With custom title <md>`
+:Term: See :term:`source directory`
 
 Inline code highlighting
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -157,3 +158,18 @@ RST Admonitions
 .. tip::
 
    world
+
+Glossary
+^^^^^^^^
+
+.. glossary::
+
+   environment
+      A structure where information about all documents under the root is
+      saved, and used for cross-referencing.  The environment is pickled
+      after the parsing stage, so that successive runs only need to read
+      and parse new and changed documents.
+
+   source directory
+      The directory which, including its subdirectories, contains all
+      source files for one Sphinx project.
