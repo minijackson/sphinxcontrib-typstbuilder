@@ -181,6 +181,7 @@ def escape_markup(s: str) -> str:
         .replace("#", "\\#")
     )
 
+
 def to_str_list(l: list[str]) -> str:
     inside = ",".join(escape_str(el) for el in l)
     return f"({inside})"
@@ -661,6 +662,14 @@ class TypstTranslator(SphinxTranslator):
         self.append_inline_fun(name="line_block_line")
 
     def depart_line(self, node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    # Other directives
+
+    def visit_rubric(self, node: Element) -> None:
+        self.append_inline_fun(name="rubric", labels=self.register_labels(node["ids"]))
+
+    def depart_rubric(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
     # Glossary / Indices

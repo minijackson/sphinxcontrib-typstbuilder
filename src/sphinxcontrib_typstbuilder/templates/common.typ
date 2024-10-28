@@ -99,6 +99,18 @@
 )
 #let seealso = gentle-clues.clue.with(title: _t("See also"), accent-color: blue)
 
+// Other directives
+
+#let rubric(title) = {
+  set text(weight: "bold")
+
+  if sys.version >= version(0, 12, 0) {
+    block(sticky: true, title)
+  } else {
+    block(title)
+  }
+}
+
 // Signatures
 
 #let _code_font = text.with(font: "DejaVu Sans Mono", size: 0.85em)

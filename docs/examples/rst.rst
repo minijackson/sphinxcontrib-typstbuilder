@@ -173,3 +173,8 @@ Glossary
    source directory
       The directory which, including its subdirectories, contains all
       source files for one Sphinx project.
+
+Other directives
+^^^^^^^^^^^^^^^^
+
+.. rubric:: Rubric
