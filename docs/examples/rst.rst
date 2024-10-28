@@ -149,15 +149,51 @@ Tables
 RST Admonitions
 ^^^^^^^^^^^^^^^
 
-.. admonition:: title
+.. admonition:: Generic admonition
 
-   world
+   one
 
-   world
+   two
+
+.. attention::
+
+   one
+
+.. caution::
+
+   one
+
+.. danger::
+
+   one
+
+.. error::
+
+   one
+
+.. hint::
+
+   one
+
+.. important::
+
+   one
+
+.. note::
+
+   one
 
 .. tip::
 
-   world
+   one
+
+.. warning::
+
+   one
+
+.. seealso::
+
+   one
 
 Glossary
 ^^^^^^^^
