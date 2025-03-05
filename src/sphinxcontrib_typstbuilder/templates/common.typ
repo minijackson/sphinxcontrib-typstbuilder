@@ -1,5 +1,5 @@
-#import "@preview/gentle-clues:1.0.0"
-#import "@preview/linguify:0.4.1"
+#import "@preview/gentle-clues:1.2.0"
+#import "@preview/linguify:0.4.2"
 
 // Utilities
 
@@ -8,7 +8,7 @@
   linguify.linguify(content, from: _translations)
 }
 
-// Given a dictionnary of year, month, date,
+// Given a dictionary of year, month, date,
 // return a datetime object
 #let get_date(date) = {
   if date != none {
@@ -47,7 +47,6 @@
     }
   }
 }
-
 
 #let _ui_element = box.with(
   inset: (x: 5pt),
