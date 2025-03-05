@@ -257,7 +257,7 @@ class TypstTranslator(SphinxTranslator):
         if (pos := label.find("#")) != -1:
             label = label[:pos]
 
-        return f"label(label-aliases.at({escape_str(label)}))"
+        return label
 
     def body(self) -> str:
         if len(self.curr_elements) != 1:
@@ -271,6 +271,15 @@ class TypstTranslator(SphinxTranslator):
 
 #let metadata = json("metadata.json")
 #let label-aliases = metadata.at("label_aliases")
+
+#let internal-link(dest, body) = {{
+  let l = label-aliases.at(dest, default: none)
+  if l == none {{
+    missing_link(body)
+  }} else {{
+	link(label(l), body)
+  }}
+}}
 
 #show: template.with(metadata: metadata)
 
@@ -412,16 +421,24 @@ class TypstTranslator(SphinxTranslator):
     def visit_reference(self, node: Element) -> None:
         # TODO: use different functions depending on internal or not,
         # in order to be able to style.
-        self.append_inline_fun(name="link")
 
         internal = node.get("internal", False)
+
+        if internal:
+            self.append_inline_fun(name="internal-link")
+        else:
+            self.append_inline_fun(name="link")
 
         if "refuri" in node and not internal:
             self.curr_element().positional_params.append(escape_str(node["refuri"]))
         elif "refuri" in node and internal:
-            self.curr_element().positional_params.append(self.label_ref(node["refuri"]))
+            self.curr_element().positional_params.append(
+                escape_str(self.label_ref(node["refuri"]))
+            )
         else:
-            self.curr_element().positional_params.append(self.label_ref(node["refid"]))
+            self.curr_element().positional_params.append(
+                escape_str(self.label_ref(node["refid"]))
+            )
 
     def depart_reference(self, _node: Element) -> None:
         self.absorb_fun_in_body()
