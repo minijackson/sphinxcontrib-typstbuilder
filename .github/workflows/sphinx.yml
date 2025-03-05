@@ -26,7 +26,9 @@ jobs:
       - uses: cachix/install-nix-action@ba0dd844c9180cbf77aa72a116d6fbc515d0e87b # v27
       - name: Build HTML and Typst PDF
         run: |
-          nix develop -c make -C docs html typst
+          nix build -L
+          mkdir -p docs/_build
+          cp -R ./result/share/doc/*/* docs/_build/
           for file in docs/_build/typst/*/*.typ; do
             nix develop -c typst compile "$file"
           done

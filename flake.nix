@@ -43,14 +43,6 @@
             pythonEnv
             pkgs.hatch
             pkgs.typst
-            # (pkgs.typst.overrideAttrs (old: {
-            #   patches = (old.patches or [ ]) ++ [
-            #     (pkgs.fetchpatch {
-            #       url = "https://github.com/typst/typst/pull/4602.patch";
-            #       hash = "sha256-WVQ1sbKcQVAMuTMc1dAumXVYOBvN80z4N32/oBOQQXk=";
-            #     })
-            #   ];
-            # }))
           ];
           env.LAST_MODIFIED = self.lastModifiedDate;
         };
@@ -77,6 +69,9 @@
                   python.pkgs.sphinxHook
                   python.pkgs.pytestCheckHook
                 ];
+
+                sphinxBuilders = ["html" "typst"];
+
                 env.LAST_MODIFIED = self.lastModifiedDate;
               });
           })
