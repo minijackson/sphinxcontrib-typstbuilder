@@ -28,7 +28,7 @@ jobs:
         run: |
           nix build -L
           mkdir -p docs/_build
-          cp -R ./result/share/doc/*/* docs/_build/
+          cp -R --no-preserve=mode ./result/share/doc/*/* docs/_build/
           for file in docs/_build/typst/*/*.typ; do
             nix develop -c typst compile "$file"
           done
