@@ -55,6 +55,10 @@
   stroke: 1pt,
 )
 
+#let missing_link(_dest, link) = {
+	text(link, red)
+}
+
 // inspired by keyle
 #let kbd(sequences) = {
   let _kbd(..keys) = keys.pos().map(_ui_element).join("-")

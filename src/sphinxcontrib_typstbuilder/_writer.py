@@ -275,7 +275,7 @@ class TypstTranslator(SphinxTranslator):
 #let internal-link(dest, body) = {{
   let l = label-aliases.at(dest, default: none)
   if l == none {{
-    missing_link(body)
+    missing_link(dest, body)
   }} else {{
 	link(label(l), body)
   }}
