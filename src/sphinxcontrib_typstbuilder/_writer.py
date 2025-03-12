@@ -190,6 +190,9 @@ def to_str_list(l: list[str]) -> str:
 class TypstTranslator(SphinxTranslator):
     def __init__(self, document: nodes.document, builder: TextBuilder) -> None:
         super().__init__(document, builder)
+
+        self.template = document["template"]
+
         self.body_bak = ""
 
         self.sectionlevel = 0
@@ -267,7 +270,7 @@ class TypstTranslator(SphinxTranslator):
         content = self.curr_elements[0].to_text()
 
         return f"""
-#import "templates/{self.config.typst_template}.typ": *
+#import "templates/{self.template}.typ": *
 
 #let metadata = json("metadata.json")
 #let label-aliases = metadata.at("label_aliases")

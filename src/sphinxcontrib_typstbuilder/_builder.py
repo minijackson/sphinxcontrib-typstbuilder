@@ -112,6 +112,7 @@ class TypstBuilder(Builder):
 
         with progress_message(__("processing %s") % startdocname):
             doctree = self._assemble_doctree(startdocname, appendices)
+            doctree["template"] = template
             destination = SphinxFileOutput(
                 destination_path=outdir / f"{targetname}.typ",
                 encoding="utf-8",
