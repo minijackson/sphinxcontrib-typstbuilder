@@ -619,15 +619,16 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
         self.absorb_fun_in_body()
 
-    def visit_tgroup(self, node: Element) -> None:
-        cols = max(node["cols"], 1)
-        self.curr_element().named_params["columns"] = str(cols)
+    def visit_tgroup(self, _node: Element) -> None:
+        self.curr_element().columns = []
 
-    def depart_tgroup(self, node: Element) -> None:
-        pass
+    def depart_tgroup(self, _node: Element) -> None:
+        cols = ", ".join(f"{x}fr" for x in self.curr_element().columns)
+        self.curr_element().named_params["columns"] = f"({cols})"
 
     def visit_colspec(self, node: Element) -> None:
-        # TODO
+        # TODO: see https://www.oasis-open.org/specs/tm9901.html#AEN446
+        self.curr_element().columns.append(node["colwidth"])
         raise nodes.SkipNode
 
     def depart_colspec(self, node: Element) -> None:
