@@ -665,6 +665,7 @@ class TypstTranslator(SphinxTranslator):
                 "colspan": colspan,
                 "rowspan": rowspan,
             },
+            force_body=True,
         )
 
     def depart_entry(self, node: Element) -> None:
