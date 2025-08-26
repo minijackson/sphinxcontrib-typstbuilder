@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from importlib import resources
 from pathlib import Path
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, ClassVar
 
 from sphinx.builders import Builder
 from sphinx.environment.adapters.asset import ImageAdapter
@@ -29,12 +29,14 @@ class TypstBuilder(Builder):
     format = "typst"
 
     # See: https://typst.app/docs/reference/visualize/image/
-    supported_image_types: tuple[str] = (
+    supported_image_types: ClassVar[list[str]] = [
         "image/svg+xml",
+        "application/pdf",
+        "image/webp",
         "image/png",
         "image/jpeg",
         "image/gif",
-    )
+    ]
 
     default_translator_class = TypstTranslator
 
