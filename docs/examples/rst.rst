@@ -19,6 +19,10 @@ Inline markup
 
 .. _reference to title:
 
+Substitution with |substitution|.
+
+.. |substitution| replace:: replacement *text*
+
 Lists
 ^^^^^
 

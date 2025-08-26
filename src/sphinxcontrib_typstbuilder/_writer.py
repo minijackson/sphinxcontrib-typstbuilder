@@ -909,5 +909,8 @@ class TypstTranslator(SphinxTranslator):
             self.absorb_fun_in_body()
         raise nodes.SkipNode
 
+    def visit_substitution_definition(self, _node: Element) -> None:
+        raise nodes.SkipNode
+
     def visit_comment(self, _node: Element) -> None:
         raise nodes.SkipNode
