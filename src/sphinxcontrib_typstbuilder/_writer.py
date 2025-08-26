@@ -859,8 +859,10 @@ class TypstTranslator(SphinxTranslator):
     def depart_Text(self, node: Text) -> None:  # noqa: N802
         pass
 
-    def visit_raw(self, _node: Element) -> None:
-        # TODO
+    def visit_raw(self, node: Element) -> None:
+        if "typst" in node.get("format", "").split():
+            self.append_el(Document(body=[node.astext(), "\n"]))
+            self.absorb_fun_in_body()
         raise nodes.SkipNode
 
     def visit_comment(self, _node: Element) -> None:
