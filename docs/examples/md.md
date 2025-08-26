@@ -1,5 +1,13 @@
 # Markdown
 
+## Footnotes
+
+- This is a manually-numbered footnote reference.[^3]
+- This is an auto-numbered footnote reference.[^myref]
+
+[^myref]: This is an auto-numbered footnote definition.
+[^3]: This is a manually-numbered footnote definition.
+
 ## Admonitions
 
 ```{admonition} title

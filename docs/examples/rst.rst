@@ -60,6 +60,26 @@ Take it away, Eric the Orchestra Leader!
 |
 | Singing...
 
+Footnotes
+^^^^^^^^^
+
+Lorem ipsum [#f1]_ dolor sit amet ... [#f2]_
+
+.. [#f1] Text of the first footnote.
+.. [#f2] Text of the second footnote.
+
+Citations
+^^^^^^^^^
+
+Here is a citation reference: [CIT2002]_.
+
+.. [CIT2002] This is the citation.  It's just like a footnote,
+   except the label is textual.
+.. [CIT2003] This is the citation.  It's just like a footnote,
+   except the label is textual.
+.. [CIT2004] This is the citation.  It's just like a footnote,
+   except the label is textual.
+
 RST Roles
 ---------
 

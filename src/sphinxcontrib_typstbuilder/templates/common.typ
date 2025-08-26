@@ -155,3 +155,9 @@
   }
   it
 }
+
+// Citations
+
+#let citation(label, body) = block[/ #label: #body]
+#let reference_label(body) = [[#body]]
+#let register_footnote(id, body) = state("footnote-" + id).update(body)

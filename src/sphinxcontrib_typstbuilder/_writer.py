@@ -314,6 +314,8 @@ class TypstTranslator(SphinxTranslator):
   }}
 }}
 
+#let footnote-content(id) = context state("footnote-" + id).final()
+
 #show: template.with(metadata: metadata)
 
 {content}
@@ -482,6 +484,44 @@ class TypstTranslator(SphinxTranslator):
     def depart_target(self, _node: Element) -> None:
         pass
 
+    # Footnotes and citations
+
+    def visit_footnote_reference(self, node: Element) -> None:
+        self.append_inline_fun(
+            name="footnote",
+            positional_params=[f"footnote-content({escape_str(node['refid'])})"],
+        )
+        self.absorb_fun_in_body()
+        raise nodes.SkipNode
+
+    def visit_footnote(self, node: Element) -> None:
+        self.append_block_fun(
+            name="register_footnote",
+            positional_params=[escape_str(node["ids"][0])],
+        )
+
+    def depart_footnote(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_citation(self, node: Element) -> None:
+        self.append_inline_fun(
+            name="citation",
+            labels=self.register_labels(node["ids"]),
+        )
+
+    def depart_citation(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_label(self, node: Element) -> None:
+        if isinstance(node.parent, nodes.footnote):
+            raise nodes.SkipNode
+
+        self.append_inline_code_fun(name="reference_label")
+
+    def depart_label(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
     # ...
 
     def visit_title(self, node: Element) -> None:
@@ -508,7 +548,13 @@ class TypstTranslator(SphinxTranslator):
 
         self.absorb_fun_in_body()
 
-    def visit_paragraph(self, _node: Element) -> None:
+    def visit_paragraph(self, node: Element) -> None:
+        if isinstance(node.parent, (nodes.footnote, nodes.citation)):
+            # TODO: rename "Document" into something else,
+            # it's just a container for unprocessed stuff
+            self.append_el(Document())
+            return
+
         # self.curr_element().body.append("\n")
         self.append_block_fun(name="par", force_body=True)
 
