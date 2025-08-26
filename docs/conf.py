@@ -110,6 +110,12 @@ myst_enable_extensions = [
     "tasklist",
 ]
 
+# By default, MyST generates a vertical line
+# at the end of each document that has footnotes.
+# This is useful for HTML, but annoying for PDFs,
+# which handle footnotes by themselves,
+# so we disable it
+myst_footnote_transition = False
 
 def setup(app):
     app.add_object_type(
