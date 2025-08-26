@@ -12,16 +12,15 @@ Inline markup
 `interpreted text`,
 ``inline literal``,
 `reference to link`_,
-`reference to title`_,
 `problematic phrase reference`_
 
 .. _reference to link: https://example.com/
 
-.. _reference to title:
-
 Substitution with |substitution|.
 
 .. |substitution| replace:: replacement *text*
+
+.. _reference to title:
 
 Lists
 ^^^^^
