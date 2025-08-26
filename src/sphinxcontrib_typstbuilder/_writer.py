@@ -543,7 +543,7 @@ class TypstTranslator(SphinxTranslator):
 
         if isinstance(node.parent, nodes.table):
             el = self.pop_el()
-            self.curr_element().caption = el
+            self.curr_element().named_params["caption"] = el
             return
 
         self.absorb_fun_in_body()
