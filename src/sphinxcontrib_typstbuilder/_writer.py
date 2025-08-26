@@ -538,7 +538,7 @@ class TypstTranslator(SphinxTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, nodes.Admonition):
             el = self.pop_el()
-            self.curr_element().title = el
+            self.curr_element().named_params["title"] = el
             return
 
         if isinstance(node.parent, nodes.table):
