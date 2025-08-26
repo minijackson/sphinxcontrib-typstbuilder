@@ -35,3 +35,22 @@ Molestias " error	quia ea corporis corrupti aut.
 https://ddg.gg
 
 <https://ddg.gg>
+
+## Tables
+
+| foo | bar |
+| --- | --- |
+| baz | bim |
+
+| left | center | right |
+| :--- | :----: | ----: |
+| a    | b      | c     |
+
+:::{table} Table caption
+:widths: 1, 2, 1
+:align: center
+
+| foo | bar | baz |
+| --- | --: | --- |
+| bim | bam |     |
+:::

@@ -55,7 +55,8 @@ class CodeFunction:
     def to_text(self) -> str:
         named = ""
         for name, arg in self.named_params.items():
-            named += f"{name}: {arg}, "
+            if arg is not None:
+                named += f"{name}: {arg}, "
 
         pos = ""
         for arg in self.positional_params:
@@ -99,6 +100,35 @@ class BlockMarkupFunction(MarkupFunction):
 
 class InlineMarkupFunction(MarkupFunction):
     pass
+
+
+class Table(BlockMarkupFunction):
+    def __init__(self, node: Element) -> None:
+        self.colwidths: list[int] = []
+        self.classes: list[str] = node.get("classes", [])
+        self.colwidths_given: bool = "colwidths-given" in self.classes
+        self.cells: list[str] = []
+
+        super().__init__(name="figure")
+
+    def to_text(self) -> str:
+        columns = str(len(self.colwidths))
+        if self.colwidths_given:
+            columns = ", ".join(f"{x}fr" for x in self.colwidths)
+            columns = f"({columns})"
+
+        self.body.append(
+            BlockMarkupFunction(
+                name="table",
+                named_params={
+                    "align": "left",
+                    "columns": columns,
+                },
+                positional_params=self.cells,
+            ).to_text()
+        )
+
+        return super().to_text()
 
 
 @dataclass
@@ -468,20 +498,19 @@ class TypstTranslator(SphinxTranslator):
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, nodes.Admonition):
             el = self.pop_el()
-            self.curr_element().named_params["title"] = el
+            self.curr_element().title = el
             return
 
         if isinstance(node.parent, nodes.table):
             el = self.pop_el()
-            # -1 is the table, -2 is the figure
-            self.curr_elements[-2].named_params["caption"] = el
+            self.curr_element().caption = el
             return
 
         self.absorb_fun_in_body()
 
     def visit_paragraph(self, _node: Element) -> None:
         # self.curr_element().body.append("\n")
-        self.append_block_fun(name="par")
+        self.append_block_fun(name="par", force_body=True)
 
     def depart_paragraph(self, _node: Element) -> None:
         # self.curr_element().body.append("\n")
@@ -615,23 +644,22 @@ class TypstTranslator(SphinxTranslator):
     # Tables
 
     def visit_table(self, node: Element) -> None:
-        self.append_block_fun(name="figure", labels=self.register_labels(node["ids"]))
-        self.append_block_fun(name="table")
+        table = Table(node)
+        table.labels = self.register_labels(node["ids"])
+        self.append_el(table)
 
-    def depart_table(self, node: Element) -> None:
-        self.absorb_fun_in_body()
+    def depart_table(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_tgroup(self, _node: Element) -> None:
-        self.curr_element().columns = []
+        pass
 
     def depart_tgroup(self, _node: Element) -> None:
-        cols = ", ".join(f"{x}fr" for x in self.curr_element().columns)
-        self.curr_element().named_params["columns"] = f"({cols})"
+        pass
 
     def visit_colspec(self, node: Element) -> None:
         # TODO: see https://www.oasis-open.org/specs/tm9901.html#AEN446
-        self.curr_element().columns.append(node["colwidth"])
+        self.curr_element().colwidths.append(node["colwidth"])
         raise nodes.SkipNode
 
     def depart_colspec(self, node: Element) -> None:
@@ -642,7 +670,7 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_thead(self, node: Element) -> None:
         el = self.pop_el()
-        self.curr_element().positional_params.append(el)
+        self.curr_element().cells.append(el)
 
     def visit_tbody(self, node: Element) -> None:
         pass
@@ -657,6 +685,16 @@ class TypstTranslator(SphinxTranslator):
         pass
 
     def visit_entry(self, node: Element) -> None:
+        align = None
+
+        classes = node.get("classes", [])
+        if "text-left" in classes:
+            align = "left"
+        elif "text-center" in classes:
+            align = "center"
+        elif "text-right" in classes:
+            align = "right"
+
         colspan = 1 + node.get("morecols", 0)
         rowspan = 1 + node.get("morerows", 0)
         self.append_inline_code_fun(
@@ -664,13 +702,19 @@ class TypstTranslator(SphinxTranslator):
             named_params={
                 "colspan": colspan,
                 "rowspan": rowspan,
+                "align": align,
             },
             force_body=True,
         )
 
     def depart_entry(self, node: Element) -> None:
         el = self.pop_el()
-        self.curr_element().positional_params.append(el)
+
+        if isinstance(node.parent.parent, nodes.thead):
+            self.curr_element().positional_params.append(el)
+            return
+
+        self.curr_element().cells.append(el)
 
     # Line blocks
 
