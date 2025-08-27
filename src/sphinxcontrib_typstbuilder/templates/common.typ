@@ -102,6 +102,11 @@
 )
 #let seealso = gentle-clues.clue.with(title: _t("See also"), accent-color: blue)
 
+#let versionadded = gentle-clues.clue.with(accent-color: green)
+#let versionchanged = gentle-clues.clue.with(accent-color: blue)
+#let deprecated = gentle-clues.clue.with(accent-color: orange)
+#let versionremoved = gentle-clues.clue.with(accent-color: red)
+
 // Other directives
 
 #let rubric(title) = {

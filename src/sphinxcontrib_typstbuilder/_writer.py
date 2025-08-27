@@ -848,6 +848,12 @@ class TypstTranslator(SphinxTranslator):
     visit_seealso = _visit_named_admonition
     depart_seealso = _depart_named_admonition
 
+    def visit_versionmodified(self, node: Element) -> None:
+        self.append_block_fun(name=node["type"])
+
+    def depart_versionmodified(self, node: Element) -> None:
+        self.absorb_fun_in_body()
+
     # Signatures / objects
 
     def visit_desc(self, _node: Element) -> None:

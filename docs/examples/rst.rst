@@ -253,6 +253,18 @@ RST Admonitions
 
    one
 
+.. versionadded:: 2.5
+   The *spam* parameter.
+
+.. versionchanged:: 2.8
+   The *spam* parameter is now of type *boson*.
+
+.. deprecated:: 3.1
+   Use ``spam`` instead.
+
+.. versionremoved:: 4.0
+   The ``spam`` function is more flexible, and should be used instead.
+
 Glossary
 ^^^^^^^^
 
