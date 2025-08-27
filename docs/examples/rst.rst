@@ -105,6 +105,7 @@ Cross-references
 :Doc: :doc:`md`
 :Doc: :doc:`With custom title <md>`
 :Term: See :term:`source directory`
+:Py:func: See :py:func:`send_message`
 
 Inline code highlighting
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -254,6 +255,27 @@ Glossary
    source directory
       The directory which, including its subdirectories, contains all
       source files for one Sphinx project.
+
+Objects
+^^^^^^^
+
+.. py:function:: send_message(sender, recipient, message_body, [priority=1])
+
+   Send a message to a recipient
+
+   :param str sender: The person sending the message
+   :param str recipient: The recipient of the message
+   :param str message_body: The body of the message
+   :param priority: The priority of the message, can be a number 1-5
+   :type priority: int or None
+   :return: the message id
+   :rtype: int
+   :raises ValueError: if the message_body exceeds 160 characters
+   :raises TypeError: if the message_body is not a basestring
+
+.. py:function:: MyModule.func(callback: Callback[[list[str]], str], opt: str | None = None) -> None
+
+   Do the thing.
 
 Other directives
 ^^^^^^^^^^^^^^^^

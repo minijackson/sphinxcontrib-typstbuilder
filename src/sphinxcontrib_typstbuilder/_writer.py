@@ -840,11 +840,10 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_desc_signature(self, node: Element) -> None:
-        if "ids" in node:
-            self.pending_labels += node["ids"]
+        self.append_block_fun(name="desc_signature", labels=self.register_labels(node["ids"]))
 
     def depart_desc_signature(self, _node: Element) -> None:
-        pass
+        self.absorb_fun_in_body()
 
     def visit_desc_name(self, node: Element) -> None:
         self.append_inline_fun(
@@ -893,7 +892,7 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_desc_parameterlist(self, node: Element) -> None:
-        self.append_block_fun(
+        self.append_inline_fun(
             name="desc_parameterlist",
             named_params={
                 "open_paren": '"("',
@@ -923,6 +922,24 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_desc_sig_name(self, _node: Element) -> None:
         self.absorb_fun_in_body()
+
+    def visit_desc_optional(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_optional")
+
+    def depart_desc_optional(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_sig_punctuation(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_sig_punctuation")
+
+    def depart_desc_sig_punctuation(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_sig_space(self, _node: Element) -> None:
+        pass
+
+    def depart_desc_sig_space(self, _node: Element) -> None:
+        pass
 
     # Others
 
