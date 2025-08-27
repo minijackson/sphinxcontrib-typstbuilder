@@ -1,4 +1,4 @@
-#import "@preview/ilm:1.2.1": *
+#import "@preview/ilm:1.4.1": *
 
 #import "common.typ": *
 

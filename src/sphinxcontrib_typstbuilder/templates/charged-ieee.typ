@@ -1,4 +1,4 @@
-#import "@preview/charged-ieee:0.1.2": ieee
+#import "@preview/charged-ieee:0.1.4": ieee
 
 #import "common.typ": *
 
