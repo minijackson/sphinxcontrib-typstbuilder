@@ -549,7 +549,7 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_paragraph(self, node: Element) -> None:
-        if isinstance(node.parent, (nodes.footnote, nodes.citation)):
+        if isinstance(node.parent, (nodes.footnote, nodes.citation, nodes.field_body)):
             # TODO: rename "Document" into something else,
             # it's just a container for unprocessed stuff
             self.append_el(Document())
