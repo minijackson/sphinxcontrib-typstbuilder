@@ -25,9 +25,8 @@ world
 :External URL: <https://example.com>
 :Internal target reference: <project:#md-autolinks>
 :Internal file reference: <project:index.rst>
-:Internal file reference: <project:md.md#md-links>
-<!-- :Internal file -> heading reference: <project:../intro.md#-get-started> -->
-<!-- :Downloadable file: <path:example.txt> -->
+:Internal file reference -> heading reference: <project:md.md#md-links>
+:Downloadable file: <path:example.txt>
 :Intersphinx reference: <inv:sphinx:std#index>
 
 ## Escape sequences

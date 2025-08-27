@@ -496,6 +496,12 @@ class TypstTranslator(SphinxTranslator):
     def depart_reference(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_download_reference(self, node: Element) -> None:
+        pass
+
+    def depart_download_reference(self, node: Element) -> None:
+        pass
+
     def visit_target(self, node: Element) -> None:
         pass
 
