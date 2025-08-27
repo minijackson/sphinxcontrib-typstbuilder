@@ -297,9 +297,21 @@ Objects
    :raises ValueError: if the message_body exceeds 160 characters
    :raises TypeError: if the message_body is not a basestring
 
-.. py:function:: MyModule.func(callback: Callback[[list[str]], str], opt: str | None = None) -> None
+.. py:function:: MyModule.func[T, U](callback: Callback[[list[str]], str], opt: str | None = None) -> None
 
    Do the thing.
+
+.. py:data:: variable
+   :type: bool
+
+   Be the thing
+
+.. cpp:function:: template<typename U> \
+                  void print(U &&u)
+
+   Print the thing
+
+A C++ expression: :cpp:expr:`print("42")`
 
 Other directives
 ^^^^^^^^^^^^^^^^

@@ -868,6 +868,13 @@ class TypstTranslator(SphinxTranslator):
     def depart_desc_signature(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_desc_signature_line(self, node: Element) -> None:
+        if self.curr_element().body:
+            self.curr_element().body.append("#linebreak()")
+
+    def depart_desc_signature_line(self, _node: Element) -> None:
+        pass
+
     def visit_desc_name(self, node: Element) -> None:
         self.append_inline_fun(
             name="desc_name",
@@ -886,6 +893,25 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_desc_addname(self, _node: Element) -> None:
         self.curr_element().body = []
+        self.absorb_fun_in_body()
+
+    def visit_desc_type(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_type")
+
+    def depart_desc_type(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_type_parameter(self, node: Element) -> None:
+        self.append_el(MarkupArg())
+
+    def depart_desc_type_parameter(self, node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_desc_type_parameter_list(self, node: Element) -> None:
+        self.append_inline_fun(name="desc_type_parameter_list")
+
+    def depart_desc_type_parameter_list(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_desc_returns(self, node: Element) -> None:
@@ -912,6 +938,12 @@ class TypstTranslator(SphinxTranslator):
         self.append_block_fun(name="desc_content")
 
     def depart_desc_content(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_inline(self, _node: Element) -> None:
+        self.append_inline_fun(name="literal")
+
+    def depart_desc_inline(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_desc_parameterlist(self, node: Element) -> None:
@@ -963,6 +995,25 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_desc_sig_space(self, _node: Element) -> None:
         pass
+
+    def visit_desc_sig_keyword(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_sig_keyword")
+
+    def depart_desc_sig_keyword(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_sig_keyword_type(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_sig_keyword_type")
+
+    def depart_desc_sig_keyword_type(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_desc_sig_literal_string(self, _node: Element) -> None:
+        self.append_inline_fun(name="desc_sig_literal_string")
+
+    def depart_desc_sig_literal_string(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
 
     # Others
 

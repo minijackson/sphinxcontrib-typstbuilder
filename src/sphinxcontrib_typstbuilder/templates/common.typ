@@ -121,19 +121,34 @@
 
 // Signatures
 
+#let _blue = oklch(55%, 0.2, 267deg)
+#let _green = oklch(55%, 0.2, 140deg)
+#let _red = oklch(55%, 0.2, 30deg)
+
 #let _punct_font = text.with(fill: luma(100))
 
 #let desc = block.with(inset: 1em)
 
 #let desc_signature = text.with(font: "DejaVu Sans Mono", size: 0.85em)
-#let desc_name = text.with(fill: rgb("#4b69c6"))
-#let desc_addname = text.with(fill: rgb("#4b69c6").lighten(20%))
+#let desc_name = text.with(fill: _blue)
+#let desc_addname = text.with(fill: _blue.lighten(40%))
 
 #let desc_returns(body) = body
 
-#let desc_annotation = text.with(fill: rgb("#40a02b"))
+#let desc_annotation = text.with(fill: luma(100))
 
 #let desc_content = block.with(inset: (x: 2em))
+
+#let desc_type_parameter_list(
+  open_paren: "[",
+  close_paren: "]",
+  child_text_separator: ", ",
+  ..elements,
+) = {
+  _punct_font(open_paren)
+  elements.pos().join(child_text_separator)
+  _punct_font(close_paren)
+}
 
 #let desc_parameterlist(
   open_paren: "(",
@@ -155,6 +170,9 @@
   _punct_font(close_paren)
 }
 #let desc_sig_punctuation = _punct_font
+#let desc_sig_keyword = text.with(fill: _red)
+#let desc_sig_keyword_type = desc_sig_keyword
+#let desc_sig_literal_string = text.with(fill: _green)
 
 // Inline
 
