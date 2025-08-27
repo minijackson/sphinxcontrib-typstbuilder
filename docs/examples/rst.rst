@@ -40,6 +40,19 @@ Lists
 #. hello 5
 #. hello 6
 
+term (up to a line of text)
+   Definition of the term, which must be indented
+
+   and can even consist of multiple paragraphs.
+
+next term
+   Description.
+
+:param my_arg: The first of my arguments.
+:param my_other_arg: The second of my arguments.
+
+:returns: A message (just for me, of course).
+
 Line blocks
 ^^^^^^^^^^^
 

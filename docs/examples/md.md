@@ -22,16 +22,13 @@ world
 
 ### Md Autolinks
 
-TODO: replace with the original field list
-
--   External URL: <https://example.com>
--   Internal target reference: <project:#md-autolinks>
-<!---   Internal file reference: <project:../index.rst>-->
--   Internal file reference: <project:index.rst>
--   Internal file reference: <project:md.md#md-links>
-<!---   Internal file -> heading reference: <project:../index.md#-get-started>-->
-<!---   Downloadable file: <path:example.txt>-->
-<!---   Intersphinx reference: <inv:sphinx:std#index>-->
+:External URL: <https://example.com>
+:Internal target reference: <project:#md-autolinks>
+:Internal file reference: <project:index.rst>
+:Internal file reference: <project:md.md#md-links>
+<!-- :Internal file -> heading reference: <project:../intro.md#-get-started> -->
+<!-- :Downloadable file: <path:example.txt> -->
+<!-- :Intersphinx reference: <inv:sphinx:std#index> -->
 
 ## Escape sequences
 
