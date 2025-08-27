@@ -28,7 +28,7 @@ world
 :Internal file reference: <project:md.md#md-links>
 <!-- :Internal file -> heading reference: <project:../intro.md#-get-started> -->
 <!-- :Downloadable file: <path:example.txt> -->
-<!-- :Intersphinx reference: <inv:sphinx:std#index> -->
+:Intersphinx reference: <inv:sphinx:std#index>
 
 ## Escape sequences
 

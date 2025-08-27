@@ -88,6 +88,14 @@ html_theme_options = {
     ],
 }
 
+# -- Options for Intersphinx -------------------------------------------------
+# https://www.sphinx-doc.org/en/master/usage/extensions/intersphinx.html
+
+intersphinx_mapping = {
+    "python": ("https://docs.python.org/3", None),
+    "sphinx": ("https://www.sphinx-doc.org/en/master", None),
+}
+
 # -- Options for MyST --------------------------------------------------------
 # https://myst-parser.readthedocs.io/en/latest/configuration.html
 
@@ -116,6 +124,7 @@ myst_enable_extensions = [
 # which handle footnotes by themselves,
 # so we disable it
 myst_footnote_transition = False
+
 
 def setup(app):
     app.add_object_type(
