@@ -463,6 +463,12 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
         raise nodes.SkipNode
 
+    def visit_manpage(self, node: Element) -> None:
+        return self.visit_literal_emphasis(node)
+
+    def depart_manpage(self, node: Element) -> None:
+        return self.depart_literal_emphasis(node)
+
     # Links
 
     def visit_reference(self, node: Element) -> None:

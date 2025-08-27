@@ -147,7 +147,7 @@ Other semantic markup
 :Keystrokes: :kbd:`Control-x Control-f`
 :Mail header: :mailheader:`Content-Type`
 :Make variable: :makevar:`help`
-.. :Man page: :manpage:`ls(1)`
+:Man page: :manpage:`ls(1)`
 :Menu selection: :menuselection:`&Start --> P&rograms`
 :MIME type: :mimetype:`text/plain`
 :Newsgroup: :newsgroup:`comp.lang.python`
