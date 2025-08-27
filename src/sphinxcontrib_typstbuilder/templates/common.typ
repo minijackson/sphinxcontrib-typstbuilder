@@ -164,6 +164,9 @@
   it
 }
 
+#let literal_strong = literal.with(weight: "bold")
+#let literal_emphasis = literal.with(style: "italic")
+
 // Citations
 
 #let citation(label, body) = block[/ #label: #body]

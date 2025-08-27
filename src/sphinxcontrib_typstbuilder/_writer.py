@@ -377,6 +377,18 @@ class TypstTranslator(SphinxTranslator):
     def depart_strong(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_literal_emphasis(self, _node: Element) -> None:
+        self.append_inline_fun(name="literal_emphasis")
+
+    def depart_literal_emphasis(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_literal_strong(self, _node: Element) -> None:
+        self.append_inline_fun(name="literal_strong")
+
+    def depart_literal_strong(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
     def visit_title_reference(self, _node: Element) -> None:
         self.append_inline_fun(name="emph")
 
