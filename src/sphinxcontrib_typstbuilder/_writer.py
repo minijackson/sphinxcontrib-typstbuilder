@@ -72,7 +72,7 @@ class CodeFunction:
 
         labels = ""
         for label in self.labels:
-            labels += f" <{label}>"
+            labels += f" #label({escape_str(label)})"
 
         return f"{self.name}({named}{pos}){body}{labels}"
 
