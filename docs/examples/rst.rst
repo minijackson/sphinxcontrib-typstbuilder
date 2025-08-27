@@ -40,6 +40,9 @@ Lists
 #. hello 5
 #. hello 6
 
+Term lists
+^^^^^^^^^^
+
 term (up to a line of text)
    Definition of the term, which must be indented
 
@@ -48,10 +51,19 @@ term (up to a line of text)
 next term
    Description.
 
-:param my_arg: The first of my arguments.
-:param my_other_arg: The second of my arguments.
+Field lists
+^^^^^^^^^^^
 
-:returns: A message (just for me, of course).
+:Date: 2001-08-16
+:Version: 1
+:Authors: - Me
+          - Myself
+          - I
+:Indentation: Since the field marker may be quite long, the second
+   and subsequent lines of the field body do not have to line up
+   with the first line, but they must be indented relative to the
+   field name marker, and they must line up with each other.
+:Parameter i: integer
 
 Line blocks
 ^^^^^^^^^^^

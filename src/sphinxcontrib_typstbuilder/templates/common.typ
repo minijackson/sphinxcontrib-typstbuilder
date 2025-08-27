@@ -167,6 +167,16 @@
 #let literal_strong = literal.with(weight: "bold")
 #let literal_emphasis = literal.with(style: "italic")
 
+// Field list
+
+#let field_list(..items) = context grid(
+  columns: 2,
+  gutter: par.spacing / 2,
+  ..items.pos().flatten()
+)
+
+#let field_item(term, body) = (strong(term), body)
+
 // Citations
 
 #let citation(label, body) = block[/ #label: #body]
