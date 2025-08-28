@@ -130,7 +130,10 @@
 
 #let desc = block.with(inset: 1em)
 
-#let desc_signature = text.with(font: "DejaVu Sans Mono", size: 0.85em)
+#let desc_signature(body) = {
+  set text(font: "DejaVu Sans Mono", size: 0.85em)
+  block(sticky: true, body)
+}
 #let desc_name = text.with(fill: _blue)
 #let desc_addname = text.with(fill: _blue.lighten(40%))
 
