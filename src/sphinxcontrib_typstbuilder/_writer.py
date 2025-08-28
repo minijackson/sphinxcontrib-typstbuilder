@@ -54,14 +54,13 @@ class CodeFunction:
     force_body: bool = False
 
     def to_text(self) -> str:
-        named = ""
-        for name, arg in self.named_params.items():
-            if arg is not None:
-                named += f"{name}: {arg}, "
+        named = ", ".join(
+            f"{name}: {arg}"
+            for name, arg in self.named_params.items()
+            if arg is not None
+        )
 
-        pos = ""
-        for arg in self.positional_params:
-            pos += f"{arg}, "
+        pos = ", ".join(self.positional_params)
 
         body = "".join(self.body).strip()
         if "\n" in body:
@@ -75,7 +74,12 @@ class CodeFunction:
         for label in self.labels:
             labels += f" #label({escape_str(label)})"
 
-        return f"{self.name}({named}{pos}){body}{labels}"
+        args_sep = ", " if named and pos else ""
+        args = f"({named}{args_sep}{pos})"
+        if args == "()" and body:
+            args = ""
+
+        return f"{self.name}{args}{body}{labels}"
 
 
 class BlockCodeFunction(CodeFunction):
