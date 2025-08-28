@@ -106,6 +106,7 @@
 #let versionchanged = gentle-clues.clue.with(accent-color: blue)
 #let deprecated = gentle-clues.clue.with(accent-color: orange)
 #let versionremoved = gentle-clues.clue.with(accent-color: red)
+#let versionmodified = emph
 
 // Other directives
 

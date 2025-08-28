@@ -442,6 +442,10 @@ class TypstTranslator(SphinxTranslator):
             self.append_inline_fun(name="guilabel")
             return
 
+        if "versionmodified" in node["classes"]:
+            self.append_inline_fun(name="versionmodified")
+            return
+
         self.append_inline_fun(
             name="inline",
             named_params={"classes": to_str_list(node["classes"])},
