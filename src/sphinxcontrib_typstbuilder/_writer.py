@@ -5,6 +5,7 @@ from textwrap import indent
 from typing import TYPE_CHECKING, Any, cast
 
 from docutils import nodes, writers
+import sphinx.addnodes
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
@@ -573,7 +574,24 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_paragraph(self, node: Element) -> None:
-        if isinstance(node.parent, (nodes.footnote, nodes.citation, nodes.field_body)):
+        # Don't call "#par()" when not needed,
+        # i.e. when it's the first child of a block item
+        if (
+            isinstance(
+                node.parent,
+                (
+                    nodes.admonition,
+                    nodes.citation,
+                    nodes.entry,
+                    nodes.field_body,
+                    nodes.footnote,
+                    nodes.list_item,
+                    sphinx.addnodes.desc_content,
+                    sphinx.addnodes.versionmodified,
+                ),
+            )
+            and not self.curr_element().body
+        ):
             # TODO: rename "Document" into something else,
             # it's just a container for unprocessed stuff
             self.append_el(Document())
@@ -869,7 +887,9 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_desc_signature(self, node: Element) -> None:
-        self.append_block_fun(name="desc_signature", labels=self.register_labels(node["ids"]))
+        self.append_block_fun(
+            name="desc_signature", labels=self.register_labels(node["ids"])
+        )
 
     def depart_desc_signature(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -1019,7 +1039,6 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_desc_sig_literal_string(self, _node: Element) -> None:
         self.absorb_fun_in_body()
-
 
     # Others
 

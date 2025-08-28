@@ -8,6 +8,19 @@
 [^myref]: This is an auto-numbered footnote definition.
 [^3]: This is a manually-numbered footnote definition.
 
+A longer footnote definition.[^mylongdef]
+
+[^mylongdef]: This is the _**footnote definition**_.
+
+    That continues for all indented lines
+
+    - even other block elements
+
+    Plus any preceding unindented lines,
+that are not separated by a blank line
+
+This is not part of the footnote.
+
 ## Admonitions
 
 ```{admonition} title

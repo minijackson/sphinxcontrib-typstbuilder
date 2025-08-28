@@ -63,6 +63,8 @@ Field lists
    and subsequent lines of the field body do not have to line up
    with the first line, but they must be indented relative to the
    field name marker, and they must line up with each other.
+
+   This is another paragraph.
 :Parameter i: integer
 
 Line blocks
@@ -100,8 +102,7 @@ Here is a citation reference: [CIT2002]_.
 .. [CIT2002] This is the citation.  It's just like a footnote,
    except the label is textual.
 .. [CIT2003] This is the citation.  It's just like a footnote,
-   except the label is textual.
-.. [CIT2004] This is the citation.  It's just like a footnote,
+
    except the label is textual.
 
 RST Roles
@@ -191,8 +192,8 @@ Tables
    | body row 2             | Cells may span columns.          |
    +------------------------+------------+---------------------+
    | body row 3             | Cells may  | - Table cells       |
-   +------------------------+ span rows. | - contain           |
-   | body row 4             |            | - body elements.    |
+   +------------------------+            | - contain           |
+   | body row 4             | span rows. | - body elements.    |
    +------------------------+------------+---------------------+
 
 .. csv-table:: Frozen Delights!
