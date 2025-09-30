@@ -1,6 +1,0 @@
-Examples
-========
-
-.. toctree::
-   rst
-   md

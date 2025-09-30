@@ -56,14 +56,6 @@ typst_documents = [
         "targetname": "main",
         "title": project,
     },
-    {
-        "startdocname": "examples/index",
-        "targetname": "examples",
-        "title": f"{project} examples",
-        "metadata": {
-            "hello": "world!",
-        },
-    },
 ]
 
 # -- Options for HTML output -------------------------------------------------
