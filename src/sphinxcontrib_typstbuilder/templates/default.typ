@@ -20,6 +20,7 @@
   set heading(numbering: "1.")
   // show heading.where(level: 1): it => {{ pagebreak(weak: true); it }}
   show link: underline
+  set math.equation(numbering: "(1)")
 
   // Content
 

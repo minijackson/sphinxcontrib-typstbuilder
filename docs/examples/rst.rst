@@ -118,6 +118,7 @@ Cross-references
 :Doc: :doc:`md`
 :Doc: :doc:`With custom title <md>`
 :Term: See :term:`source directory`
+:Equation: See :eq:`euler`
 :Py:func: See :py:func:`send_message`
 
 Inline code highlighting
@@ -132,8 +133,12 @@ Inline code highlighting
 Math
 ^^^^
 
-.. :Math: :math:`a^2 + b^2 = c^2`
-.. :Eq: :eq:`a^2 + b^2 = c^2`
+:Inline math: :math:`a^2 + b^2 = c^2`
+
+:Block math:
+
+.. math:: e^(i pi) + 1 = 0
+   :label: euler
 
 Other semantic markup
 ^^^^^^^^^^^^^^^^^^^^^

@@ -163,6 +163,22 @@ class ArrayArg:
         return f"({body})"
 
 
+@dataclass
+class Math:
+    block: bool = False
+    body: str = ""
+    labels: list[str] = field(default_factory=list)
+
+    def to_text(self) -> str:
+        ws = " " if self.block else ""
+        body = self.body.strip()
+
+        labels = ""
+        for label in self.labels:
+            labels += f" <{label}>"
+        return f"${ws}{body}{ws}${labels}"
+
+
 def document_label(docname: str) -> str:
     return "document:" + docname.replace("/", ":")
 
@@ -1094,6 +1110,19 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_topic(self, _node: Element) -> None:
         self.absorb_fun_in_body()
+
+    def visit_math(self, node: Element) -> None:
+        self.append_el(Math(block=False, body=node.astext()))
+        self.absorb_fun_in_body()
+        raise nodes.SkipNode
+
+    def visit_math_block(self, node: Element) -> None:
+        if "ids" in node:
+            self.pending_labels += node["ids"]
+
+        self.append_el(Math(block=True, body=node.astext()))
+        self.absorb_fun_in_body()
+        raise nodes.SkipNode
 
     def visit_comment(self, _node: Element) -> None:
         raise nodes.SkipNode
