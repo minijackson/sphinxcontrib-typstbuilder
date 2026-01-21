@@ -19,7 +19,8 @@ from . import templates
 from ._writer import TypstTranslator, TypstWriter, document_label
 
 if TYPE_CHECKING:
-    from collections.abc import Iterable, Sequence
+    from collections.abc import Iterable
+    from collections.abc import Set as AbstractSet
 
     from docutils import nodes
 
@@ -77,12 +78,7 @@ class TypstBuilder(Builder):
         self.env.resolve_references(tree, startdocname, self)
         return tree
 
-    def write(
-        self,
-        _build_docnames: Iterable[str] | None,
-        _updated_docnames: Sequence[str],
-        _method: str = "update",
-    ) -> None:
+    def write_documents(self, _docnames: AbstractSet[str]) -> None:
         for document in self.config.typst_documents:
             startdocname: str = document["startdocname"]
             targetname: str = document["targetname"]
