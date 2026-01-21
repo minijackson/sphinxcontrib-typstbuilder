@@ -185,7 +185,7 @@ class TypstBuilder(Builder):
         # Copy the whole directory,
         # since there could be assets
         with resources.as_file(templates_source_dir) as templates_source_dir:
-            copy_asset(templates_source_dir, templates_dest_dir)
+            copy_asset(templates_source_dir, templates_dest_dir, force=True)
 
         language = self.config.language
 
