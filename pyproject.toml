@@ -40,6 +40,9 @@ Documentation = "https://github.com/minijackson/sphinxcontrib-typstbuilder#readm
 Issues = "https://github.com/minijackson/sphinxcontrib-typstbuilder/issues"
 Source = "https://github.com/minijackson/sphinxcontrib-typstbuilder"
 
+[project.entry-points."sphinx.builders"]
+typst = "sphinxcontrib_typstbuilder"
+
 [tool.hatch.envs.docs]
 features = ["docs"]
 
