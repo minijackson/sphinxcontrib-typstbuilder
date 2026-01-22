@@ -4,8 +4,9 @@ from dataclasses import dataclass, field
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, cast
 
-from docutils import nodes, writers
 import sphinx.addnodes
+from docutils import nodes, writers
+from sphinx.util import logging
 from sphinx.util.docutils import SphinxTranslator
 
 if TYPE_CHECKING:
@@ -13,6 +14,8 @@ if TYPE_CHECKING:
     from sphinx.builders.text import TextBuilder
 
     from ._builder import TypstBuilder
+
+logger = logging.getLogger(__name__)
 
 
 class TypstWriter(writers.Writer):
@@ -736,7 +739,11 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().named_params["caption"] = el
 
     def visit_image(self, node: Element) -> None:
-        image = self.builder.images[node["uri"]]
+        if node["uri"] in self.builder.images:
+            image = self.builder.images[node["uri"]]
+        else:
+            logger.warning("missing image %s", node["uri"])
+            image = node["uri"]
         self.append_inline_fun(name="image", positional_params=[escape_raw_str(image)])
 
     def depart_image(self, _node: Element) -> None:
