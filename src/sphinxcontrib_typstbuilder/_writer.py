@@ -564,7 +564,7 @@ class TypstTranslator(SphinxTranslator):
     # ...
 
     def visit_title(self, node: Element) -> None:
-        if isinstance(node.parent, (nodes.Admonition, nodes.table)):
+        if isinstance(node.parent, (nodes.Admonition, nodes.topic, nodes.table)):
             self.append_el(MarkupArg())
             return
 
@@ -575,7 +575,7 @@ class TypstTranslator(SphinxTranslator):
         self.append_block_fun(name="heading", named_params={"level": self.sectionlevel})
 
     def depart_title(self, node: Element) -> None:
-        if isinstance(node.parent, nodes.Admonition):
+        if isinstance(node.parent, (nodes.Admonition, nodes.topic)):
             el = self.pop_el()
             self.curr_element().named_params["title"] = el
             return
@@ -600,6 +600,7 @@ class TypstTranslator(SphinxTranslator):
                     nodes.field_body,
                     nodes.footnote,
                     nodes.list_item,
+                    nodes.topic,
                     sphinx.addnodes.desc_content,
                     sphinx.addnodes.versionmodified,
                 ),
@@ -1087,6 +1088,12 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_substitution_definition(self, _node: Element) -> None:
         raise nodes.SkipNode
+
+    def visit_topic(self, _node: Element) -> None:
+        self.append_block_fun(name="topic")
+
+    def depart_topic(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
 
     def visit_comment(self, _node: Element) -> None:
         raise nodes.SkipNode

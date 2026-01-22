@@ -120,6 +120,8 @@
   }
 }
 
+#let topic = gentle-clues.clue.with(accent-color: blue)
+
 // Signatures
 
 #let _blue = oklch(55%, 0.2, 267deg)
