@@ -1,4 +1,5 @@
 from __future__ import annotations
+from sphinx.util.osutil import ensuredir
 
 import json
 from importlib import resources
@@ -124,6 +125,7 @@ class TypstBuilder(Builder):
             docwriter.write(doctree, destination)
 
         self._copy_images(outdir)
+        self._copy_download_files(outdir)
         self._copy_template(template, outdir)
         self._write_metadata(title, docwriter.label_aliases, extra_metadata, outdir)
 
@@ -138,7 +140,26 @@ class TypstBuilder(Builder):
             self.app.verbosity,
             stringify_func=stringify_func,
         ):
-            copy_asset_file(self.srcdir / image, outdir / self.images[image])
+            copy_asset_file(
+                self.srcdir / image,
+                outdir / self.images[image],
+                force=True,
+            )
+
+    def _copy_download_files(self, outdir: Path) -> None:
+        if not self.env.dlfiles:
+            return
+
+        for file in status_iterator(
+            self.env.dlfiles,
+            __("copying download files... "),
+            "brown",
+            len(self.env.dlfiles),
+            self.app.verbosity,
+        ):
+            dest = outdir / self.env.dlfiles[file][1]
+            ensuredir(dest.parent)
+            copy_asset_file(self.srcdir / file, dest, force=True)
 
     @progress_message("copying template files")
     def _copy_template(self, template_name: str, outdir: Path) -> None:

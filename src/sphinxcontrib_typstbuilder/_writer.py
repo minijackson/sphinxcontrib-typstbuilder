@@ -506,9 +506,15 @@ class TypstTranslator(SphinxTranslator):
         self.absorb_fun_in_body()
 
     def visit_download_reference(self, node: Element) -> None:
-        pass
+        # There doesn't seem to be a way of creating a link to an attachment
+        self.append_inline_fun(
+            name="pdf.attach",
+            positional_params=[escape_str(node["filename"])],
+            named_params={"description": escape_str(node["reftarget"])},
+        )
+        self.absorb_fun_in_body()
 
-    def depart_download_reference(self, node: Element) -> None:
+    def depart_download_reference(self, _node: Element) -> None:
         pass
 
     def visit_target(self, node: Element) -> None:
