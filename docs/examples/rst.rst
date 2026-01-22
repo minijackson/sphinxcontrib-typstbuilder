@@ -97,7 +97,7 @@ Lorem ipsum [#f1]_ dolor sit amet ... [#f2]_
 Citations
 ^^^^^^^^^
 
-Here is a citation reference: [CIT2002]_.
+Here is a citation reference: [CIT2002]_, [CIT2003]_.
 
 .. [CIT2002] This is the citation.  It's just like a footnote,
    except the label is textual.
@@ -160,8 +160,8 @@ Other semantic markup
 :Program: :program:`curl`
 :Regular expression: :regexp:`([abc])+`
 :Samp: :samp:`print(1+{variable})`
-.. :CVE: :cve:`2020-10735`
-.. :CWE: :cwe:`787`
+:CVE: :cve:`2020-10735`
+:CWE: :cwe:`787`
 :PEP: :pep:`8`
 :RFC: :rfc:`2324`
 
