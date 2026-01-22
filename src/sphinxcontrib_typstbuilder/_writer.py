@@ -856,6 +856,12 @@ class TypstTranslator(SphinxTranslator):
     def depart_rubric(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_topic(self, _node: Element) -> None:
+        self.append_block_fun(name="topic")
+
+    def depart_topic(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
     # Glossary / Indices
 
     def visit_glossary(self, node: Element) -> None:
@@ -1104,12 +1110,6 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_substitution_definition(self, _node: Element) -> None:
         raise nodes.SkipNode
-
-    def visit_topic(self, _node: Element) -> None:
-        self.append_block_fun(name="topic")
-
-    def depart_topic(self, _node: Element) -> None:
-        self.absorb_fun_in_body()
 
     def visit_math(self, node: Element) -> None:
         self.append_el(Math(block=False, body=node.astext()))
