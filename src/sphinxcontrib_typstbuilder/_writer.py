@@ -627,6 +627,7 @@ class TypstTranslator(SphinxTranslator):
                 (
                     nodes.admonition,
                     nodes.citation,
+                    nodes.description,
                     nodes.entry,
                     nodes.field_body,
                     nodes.footnote,
@@ -1159,6 +1160,64 @@ class TypstTranslator(SphinxTranslator):
 
     def depart_desc_sig_literal_string(self, _node: Element) -> None:
         self.absorb_fun_in_body()
+
+    # Options
+
+    def visit_option_list(self, _node: Element) -> None:
+        # Format:
+        #
+        # #option_list(
+        #   option_group(option["-h"], option["--help"]), [something],
+        #   option_group(option(argument: ["file"], delimiter: "=")["--one"]), [something],
+        # )
+        self.append_block_fun(name="option_list")
+
+    def depart_option_list(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_option_list_item(self, _node: Element) -> None:
+        pass
+
+    def depart_option_list_item(self, _node: Element) -> None:
+        pass
+
+    def visit_option_group(self, _node: Element) -> None:
+        self.append_block_code_fun(name="option_group")
+
+    def depart_option_group(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_option(self, _node: Element) -> None:
+        self.append_inline_code_fun("option")
+
+    def depart_option(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
+
+    def visit_option_string(self, _node: Element) -> None:
+        self.append_el(Document())
+
+    def depart_option_string(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_option_argument(self, _node: Element) -> None:
+        self.append_el(MarkupArg())
+
+    def depart_option_argument(self, node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().named_params["argument"] = el
+        if "delimiter" in node:
+            self.curr_element().named_params["delimiter"] = escape_str(
+                node["delimiter"]
+            )
+
+    def visit_description(self, _node: Element) -> None:
+        self.append_el(MarkupArg())
+
+    def depart_description(self, _node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().positional_params.append(el)
 
     # Others
 

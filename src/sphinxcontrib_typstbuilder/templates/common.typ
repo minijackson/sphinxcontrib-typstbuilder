@@ -34,6 +34,8 @@
 #let inline(classes: (), body) = body
 
 #let literal = text.with(font: "DejaVu Sans Mono", size: 9pt)
+#let literal_strong = literal.with(weight: "bold")
+#let literal_emphasis = literal.with(style: "italic")
 
 // inspired by the acrostiche package
 #let abbreviation(explanation: none, abbr) = {
@@ -56,7 +58,7 @@
 )
 
 #let missing_link(_dest, link) = {
-	text(link, red)
+  text(link, red)
 }
 
 // inspired by keyle
@@ -66,9 +68,9 @@
   sequences
     .split()
     .map(sequence => {
-        let keys = sequence.split(regex("[+-]"))
-        _kbd(..keys)
-      })
+      let keys = sequence.split(regex("[+-]"))
+      _kbd(..keys)
+    })
     .join(" ")
 }
 
@@ -185,6 +187,18 @@
 #let desc_sig_keyword_type = desc_sig_keyword
 #let desc_sig_literal_string = text.with(fill: _green)
 
+// Options
+
+#let option_list(..options) = grid(columns: (auto, 1fr), gutter: 1em, ..options)
+#let option_group(..option_names) = option_names.pos().join(", ")
+#let option(argument: none, delimiter: " ", name) = {
+  literal_strong(name)
+  if argument != none {
+    literal(delimiter)
+    literal_emphasis(argument)
+  }
+}
+
 // Inline
 
 #show raw.where(lang: "samp"): it => {
@@ -197,9 +211,6 @@
   }
   it
 }
-
-#let literal_strong = literal.with(weight: "bold")
-#let literal_emphasis = literal.with(style: "italic")
 
 // Field list
 
