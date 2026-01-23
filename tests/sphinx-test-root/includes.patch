@@ -1,0 +1,12 @@
+diff --git i/includes.txt w/includes.txt
+index 19b98ae12..6f3c19aaf 100644
+--- i/includes.txt
++++ w/includes.txt
+@@ -3,7 +3,6 @@ Testing downloadable files
+ 
+ Download :download:`img.png` here.
+ Download :download:`this <subdir/img.png>` there.
+-Download :download:`file with special characters <file_with_special_#_chars.xyz>`.
+ 
+ Test file and literal inclusion
+ ===============================

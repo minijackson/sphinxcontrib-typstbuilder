@@ -59,6 +59,10 @@
         default = self.packages.x86_64-linux.sphinxcontrib-typstbuilder;
       };
 
+      checks.x86_64-linux = {
+        sphinx-test-root = pkgs.callPackage ./tests/sphinx-test-root { };
+      };
+
       overlays.default = _final: prev: {
         pythonPackagesExtensions = prev.pythonPackagesExtensions ++ [
           (final: _prev: {

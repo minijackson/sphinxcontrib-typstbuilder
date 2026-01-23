@@ -1,0 +1,24 @@
+diff --git i/math.txt w/math.txt
+index 116644007..0eed84c14 100644
+--- i/math.txt
++++ w/math.txt
+@@ -12,16 +12,16 @@ This is inline math: :math:`a^2 + b^2 = c^2`.
+ .. math::
+    :label: foo
+ 
+-   e^{i\pi} = 1
++   e^(i pi) = 1
+ 
+ .. math::
+    :label:
+ 
+-   e^{ix} = \cos x + i\sin x
++   e^(i x) = cos(x) + i sin(x)
+ 
+ .. math::
+ 
+-   n \in \mathbb N
++   n in NN
+ 
+ .. math::
+    :no-wrap:

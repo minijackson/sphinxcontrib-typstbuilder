@@ -1,0 +1,12 @@
+diff --git i/index.txt w/index.txt
+index 22270b444..91881ea36 100644
+--- i/index.txt
++++ w/index.txt
+@@ -23,7 +23,6 @@ Contents:
+    bom
+    math
+    autodoc
+-   extensions
+    footnote
+    lists
+    otherext

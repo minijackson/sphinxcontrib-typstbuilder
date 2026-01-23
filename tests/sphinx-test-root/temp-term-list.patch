@@ -1,0 +1,13 @@
+diff --git i/markup.txt w/markup.txt
+index 8f5e026a2..a813db9b4 100644
+--- i/markup.txt
++++ w/markup.txt
+@@ -385,8 +385,6 @@ This tests :CLASS:`role names in uppercase`.
+    *fermion*
+       Particle with half-integer spin.
+ 
+-   tauon
+-   myon
+    electron
+       Examples for fermions.
+ 
