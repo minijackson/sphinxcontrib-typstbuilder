@@ -804,6 +804,10 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().colwidths.append(node["colwidth"])
         raise nodes.SkipNode
 
+    def visit_tabular_col_spec(self, node: Element) -> None:
+        # This is LaTeX-specific tabular specification
+        raise nodes.SkipNode
+
     def depart_colspec(self, node: Element) -> None:
         pass
 
