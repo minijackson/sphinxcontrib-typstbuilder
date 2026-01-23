@@ -1,5 +1,7 @@
 # Markdown
 
+H{sub}`2`O, and 4{sup}`th` of July
+
 ## Footnotes
 
 - This is a manually-numbered footnote reference.[^3]

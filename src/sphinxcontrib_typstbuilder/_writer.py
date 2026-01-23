@@ -427,6 +427,18 @@ class TypstTranslator(SphinxTranslator):
     def depart_strong(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_subscript(self, node: Element) -> None:
+        self.append_inline_fun(node, name="sub")
+
+    def depart_subscript(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_superscript(self, node: Element) -> None:
+        self.append_inline_fun(node, name="super")
+
+    def depart_superscript(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
     def visit_literal_emphasis(self, node: Element) -> None:
         self.append_inline_fun(node, name="literal_emphasis")
 
