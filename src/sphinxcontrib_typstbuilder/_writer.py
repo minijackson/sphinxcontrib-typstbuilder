@@ -730,13 +730,23 @@ class TypstTranslator(SphinxTranslator):
     def depart_figure(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
-    # TODO: visit_legend
     def visit_caption(self, node: Element) -> None:
         self.append_el(MarkupArg())
 
     def depart_caption(self, node: Element) -> None:
         el = self.pop_el()
         self.curr_element().named_params["caption"] = el
+
+    def visit_legend(self, node: Element) -> None:
+        self.append_el(Document())
+
+    def depart_legend(self, node: Element) -> None:
+        el = self.pop_el()
+        caption = self.curr_element().named_params["caption"]
+        # HACK: this assumes a caption was already added,
+        # and is a MarkupArg, so is of the form `[thing]`
+        new_caption = caption[:-1] + el + caption[-1]
+        self.curr_element().named_params["caption"] = new_caption
 
     def visit_image(self, node: Element) -> None:
         if node["uri"] in self.builder.images:
