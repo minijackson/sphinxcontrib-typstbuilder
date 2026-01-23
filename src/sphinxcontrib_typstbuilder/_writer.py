@@ -740,7 +740,7 @@ class TypstTranslator(SphinxTranslator):
     def visit_figure(self, node: Element) -> None:
         self.append_block_fun(name="figure", labels=self.register_labels(node["ids"]))
 
-    def depart_figure(self, node: Element) -> None:
+    def depart_figure(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_caption(self, node: Element) -> None:
@@ -768,6 +768,23 @@ class TypstTranslator(SphinxTranslator):
             logger.warning("missing image %s", node["uri"])
             image = node["uri"]
         self.append_inline_fun(name="image", positional_params=[escape_raw_str(image)])
+
+        width = node.get("width")
+        if width is None:
+            if isinstance(node.parent, nodes.figure) and "width" in node.parent:
+                width = node.parent["width"]
+            elif (
+                isinstance(node.parent, nodes.reference)
+                and isinstance(node.parent.parent, nodes.figure)
+                and "width" in node.parent.parent
+            ):
+                width = node.parent.parent["width"]
+
+        if width is not None:
+            if width.endswith(("pt", "mm", "cm", "in", "em", "%")):
+                self.curr_element().named_params["width"] = width
+            else:
+                logger.warning("unsupported width length unit for %s, ignoring", width)
 
     def depart_image(self, _node: Element) -> None:
         self.absorb_fun_in_body()
