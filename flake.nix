@@ -44,7 +44,14 @@
             pkgs.hatch
             pkgs.typst
           ];
-          env.LAST_MODIFIED = self.lastModifiedDate;
+          env = {
+            LAST_MODIFIED = self.lastModifiedDate;
+            TYPST_FONT_PATHS = pkgs.lib.makeSearchPath "share/fonts" [
+              pkgs.fira-code
+              pkgs.iosevka
+              pkgs.libertinus
+            ];
+          };
         };
 
       packages.x86_64-linux = {
@@ -70,7 +77,10 @@
                   python.pkgs.pytestCheckHook
                 ];
 
-                sphinxBuilders = ["html" "typst"];
+                sphinxBuilders = [
+                  "html"
+                  "typst"
+                ];
 
                 env.LAST_MODIFIED = self.lastModifiedDate;
               });
