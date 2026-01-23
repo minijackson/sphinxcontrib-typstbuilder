@@ -40,7 +40,6 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 # -- Options for Typst output ------------------------------------------------
 # https://minijackson.github.io/sphinxcontrib-typstbuilder/configuration.html
 
-typst_template = "ilm"
 typst_date: date
 
 if date_s := os.environ.get("LAST_MODIFIED"):
