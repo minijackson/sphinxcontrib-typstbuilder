@@ -260,6 +260,7 @@ class TypstTranslator(SphinxTranslator):
         self.sectionlevel = 0
         self.curr_elements = [Unprocessed()]
         self.curr_files = []
+        self.attached_files = set()
 
         self.this_is_the_title = True
 
@@ -552,6 +553,10 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_download_reference(self, node: Element) -> None:
         # There doesn't seem to be a way of creating a link to an attachment
+        if node["filename"] in self.attached_files:
+            return
+
+        self.attached_files.add(node["filename"])
         self.append_inline_fun(
             node,
             name="pdf.attach",
