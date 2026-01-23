@@ -183,8 +183,15 @@ class Math:
         return f"${ws}{body}{ws}${labels}"
 
 
+# Label format (inspired from the LaTeX writer):
+#
+#     %path/to/document
+# Or:
+#     %path/to/document#fragment
+
+
 def document_label(docname: str) -> str:
-    return "document:" + docname.replace("/", ":")
+    return "%" + docname
 
 
 def escape_str(s: str) -> str:
@@ -252,6 +259,7 @@ class TypstTranslator(SphinxTranslator):
 
         self.sectionlevel = 0
         self.curr_elements = [Unprocessed()]
+        self.curr_files = []
 
         self.this_is_the_title = True
 
@@ -308,11 +316,10 @@ class TypstTranslator(SphinxTranslator):
         if not labels:
             return []
 
-        main_label = labels[0]
+        main_label = self.label_ref(labels[0])
 
-        # TODO: handle labels, that can be duplicate across files
         for label in labels:
-            self.label_aliases[label] = main_label
+            self.label_aliases[self.label_ref(label)] = main_label
 
         return [main_label]
 
@@ -327,17 +334,8 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().body.append(el)
 
     def label_ref(self, label: str) -> str:
-        # TODO: error management
-        # main_label = self.label_aliases[label]
-        # return f"label({main_label})"
-
-        # TODO: this skips document for refs with anchors in other documents
-        # this means that there can be collision if same label in multiple documents
-        # if (pos := label.find("#")) != -1:
-        #     label = label[pos + 1:]
-
-        if (pos := label.find("#")) != -1:
-            label = label[:pos]
+        if not label.startswith("%"):
+            label = "%" + self.curr_files[-1] + "#" + label
 
         return label
 
@@ -376,16 +374,18 @@ class TypstTranslator(SphinxTranslator):
     # Containers
 
     def visit_document(self, node: Element) -> None:
+        self.curr_files.append(node["docname"])
         self.pending_labels.append(document_label(node["docname"]))
 
-    def depart_document(self, node: Element) -> None:
-        pass
+    def depart_document(self, _node: Element) -> None:
+        self.curr_files.pop()
 
     def visit_start_of_file(self, node: Element) -> None:
+        self.curr_files.append(node["docname"])
         self.pending_labels.append(document_label(node["docname"]))
 
-    def depart_start_of_file(self, node: Element) -> None:
-        pass
+    def depart_start_of_file(self, _node: Element) -> None:
+        self.curr_files.pop()
 
     def visit_compound(self, node: Element) -> None:
         pass
@@ -529,10 +529,7 @@ class TypstTranslator(SphinxTranslator):
     # Links
 
     def visit_reference(self, node: Element) -> None:
-        # TODO: use different functions depending on internal or not,
-        # in order to be able to style.
-
-        internal = node.get("internal", False)
+        internal = node.get("internal", False) or "refid" in node
 
         if internal:
             self.append_inline_fun(node, name="internal-link")
@@ -543,11 +540,11 @@ class TypstTranslator(SphinxTranslator):
             self.curr_element().positional_params.append(escape_str(node["refuri"]))
         elif "refuri" in node and internal:
             self.curr_element().positional_params.append(
-                escape_str(self.label_ref(node["refuri"]))
+                escape_str(self.label_ref(node["refuri"])),
             )
         else:
             self.curr_element().positional_params.append(
-                escape_str(self.label_ref(node["refid"]))
+                escape_str(self.label_ref(node["refid"])),
             )
 
     def depart_reference(self, _node: Element) -> None:
