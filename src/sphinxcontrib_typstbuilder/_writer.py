@@ -908,6 +908,21 @@ class TypstTranslator(SphinxTranslator):
     def depart_sidebar(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_hlist(self, node: Element) -> None:
+        self.append_block_fun(
+            name="columns",
+            positional_params=[node["ncolumns"]],
+        )
+
+    def depart_hlist(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_hlistcol(self, _node: Element) -> None:
+        pass
+
+    def depart_hlistcol(self, _node: Element) -> None:
+        self.curr_element().body.append("#colbreak()\n")
+
     def visit_centered(self, _node: Element) -> None:
         self.append_block_fun(name="align", positional_params=["center"])
 
