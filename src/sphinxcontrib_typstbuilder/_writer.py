@@ -583,7 +583,10 @@ class TypstTranslator(SphinxTranslator):
     # ...
 
     def visit_title(self, node: Element) -> None:
-        if isinstance(node.parent, (nodes.Admonition, nodes.topic, nodes.table)):
+        if isinstance(
+            node.parent,
+            (nodes.Admonition, nodes.topic, nodes.sidebar, nodes.table),
+        ):
             self.append_el(MarkupArg())
             return
 
@@ -594,7 +597,7 @@ class TypstTranslator(SphinxTranslator):
         self.append_block_fun(name="heading", named_params={"level": self.sectionlevel})
 
     def depart_title(self, node: Element) -> None:
-        if isinstance(node.parent, (nodes.Admonition, nodes.topic)):
+        if isinstance(node.parent, (nodes.Admonition, nodes.topic, nodes.sidebar)):
             el = self.pop_el()
             self.curr_element().named_params["title"] = el
             return
@@ -605,6 +608,15 @@ class TypstTranslator(SphinxTranslator):
             return
 
         self.absorb_fun_in_body()
+
+    def visit_subtitle(self, node: Element) -> None:
+        if isinstance(node.parent, nodes.sidebar):
+            self.append_el(MarkupArg())
+
+    def depart_subtitle(self, node: Element) -> None:
+        if isinstance(node.parent, nodes.sidebar):
+            el = self.pop_el()
+            self.curr_element().named_params["subtitle"] = el
 
     def visit_paragraph(self, node: Element) -> None:
         # Don't call "#par()" when not needed,
@@ -888,6 +900,12 @@ class TypstTranslator(SphinxTranslator):
         self.append_block_fun(name="topic")
 
     def depart_topic(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
+    def visit_sidebar(self, _node: Element) -> None:
+        self.append_block_fun(name="sidebar")
+
+    def depart_sidebar(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     visit_productionlist = visit_literal

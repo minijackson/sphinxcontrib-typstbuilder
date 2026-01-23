@@ -121,6 +121,11 @@
 }
 
 #let topic = gentle-clues.clue.with(accent-color: blue)
+#let sidebar(title: none, subtitle: none, body) = topic(title: title)[
+  #strong(subtitle)
+
+  #body
+]
 
 // Signatures
 
