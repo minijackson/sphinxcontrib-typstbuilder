@@ -38,7 +38,7 @@ class TypstWriter(writers.Writer):
 
 
 @dataclass
-class Document:
+class Unprocessed:
     body: list[str] = field(default_factory=list)
 
     def to_text(self) -> str:
@@ -151,7 +151,7 @@ class MarkupArg:
 
         labels = ""
         for label in self.labels:
-            labels += f" <{label}>"
+            labels += f" #label({escape_str(label)})"
 
         return f"[{body}{labels}]"
 
@@ -178,7 +178,8 @@ class Math:
 
         labels = ""
         for label in self.labels:
-            labels += f" <{label}>"
+            labels += f" #label({escape_str(label)})"
+
         return f"${ws}{body}{ws}${labels}"
 
 
@@ -250,7 +251,7 @@ class TypstTranslator(SphinxTranslator):
         self.body_bak = ""
 
         self.sectionlevel = 0
-        self.curr_elements = [Document()]
+        self.curr_elements = [Unprocessed()]
 
         self.this_is_the_title = True
 
@@ -266,17 +267,41 @@ class TypstTranslator(SphinxTranslator):
     def pop_el(self) -> str:
         return self.curr_elements.pop().to_text()
 
-    def append_inline_fun(self, *args, **kwargs) -> None:
-        self.append_el(InlineMarkupFunction(*args, **kwargs))
+    def append_inline_fun(self, node: Element | None, *args, **kwargs) -> None:
+        el = InlineMarkupFunction(*args, **kwargs)
+        if node is not None:
+            el.labels = self.register_labels(node["ids"])
+        self.append_el(el)
 
-    def append_block_fun(self, *args, **kwargs) -> None:
-        self.append_el(BlockMarkupFunction(*args, **kwargs))
+    def append_block_fun(self, node: Element | None, *args, **kwargs) -> None:
+        el = BlockMarkupFunction(*args, **kwargs)
+        if node is not None:
+            el.labels = self.register_labels(node["ids"])
+        self.append_el(el)
 
-    def append_inline_code_fun(self, *args, **kwargs) -> None:
-        self.append_el(InlineCodeFunction(*args, **kwargs))
+    def append_inline_code_fun(self, node: Element | None, *args, **kwargs) -> None:
+        el = InlineCodeFunction(*args, **kwargs)
+        if node is not None:
+            el.labels = self.register_labels(node["ids"])
+        self.append_el(el)
 
-    def append_block_code_fun(self, *args, **kwargs) -> None:
-        self.append_el(BlockCodeFunction(*args, **kwargs))
+    def append_block_code_fun(self, node: Element | None, *args, **kwargs) -> None:
+        el = BlockCodeFunction(*args, **kwargs)
+        if node is not None:
+            el.labels = self.register_labels(node["ids"])
+        self.append_el(el)
+
+    def append_unprocessed(self, node: Element | None, *args, **kwargs) -> None:
+        el = Unprocessed(*args, **kwargs)
+        if node is not None:
+            self.pending_labels += node["ids"]
+        self.append_el(el)
+
+    def append_markup_arg(self, node: Element | None, *args, **kwargs) -> None:
+        el = MarkupArg(*args, **kwargs)
+        if node is not None:
+            el.labels = self.register_labels(node["ids"])
+        self.append_el(el)
 
     def register_labels(self, labels: list[str]) -> list[str]:
         """Register a list of document labels, and return only the main one."""
@@ -381,7 +406,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_container(self, node: Element) -> None:
         if "literal-block-wrapper" in node["classes"]:
-            self.append_block_fun(name="figure")
+            self.append_block_fun(node, name="figure")
 
     def depart_container(self, node: Element) -> None:
         if "literal-block-wrapper" in node["classes"]:
@@ -389,32 +414,32 @@ class TypstTranslator(SphinxTranslator):
 
     # Inline markup
 
-    def visit_emphasis(self, _node: Element) -> None:
-        self.append_inline_fun(name="emph")
+    def visit_emphasis(self, node: Element) -> None:
+        self.append_inline_fun(node, name="emph")
 
     def depart_emphasis(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_strong(self, _node: Element) -> None:
-        self.append_inline_fun(name="strong")
+    def visit_strong(self, node: Element) -> None:
+        self.append_inline_fun(node, name="strong")
 
     def depart_strong(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_literal_emphasis(self, _node: Element) -> None:
-        self.append_inline_fun(name="literal_emphasis")
+    def visit_literal_emphasis(self, node: Element) -> None:
+        self.append_inline_fun(node, name="literal_emphasis")
 
     def depart_literal_emphasis(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_literal_strong(self, _node: Element) -> None:
-        self.append_inline_fun(name="literal_strong")
+    def visit_literal_strong(self, node: Element) -> None:
+        self.append_inline_fun(node, name="literal_strong")
 
     def depart_literal_strong(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_title_reference(self, _node: Element) -> None:
-        self.append_inline_fun(name="emph")
+    def visit_title_reference(self, node: Element) -> None:
+        self.append_inline_fun(node, name="emph")
 
     def depart_title_reference(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -424,6 +449,7 @@ class TypstTranslator(SphinxTranslator):
     def visit_literal(self, node: Element) -> None:
         if "kbd" in node["classes"]:
             self.append_inline_fun(
+                node,
                 name="kbd",
                 positional_params=[escape_str(node.astext())],
             )
@@ -435,13 +461,14 @@ class TypstTranslator(SphinxTranslator):
         if lang is None and "regexp" in node["classes"]:
             lang = "regexp"
         elif "code" not in node["classes"] or not lang:
-            self.append_inline_fun("literal")
+            self.append_inline_fun(node, "literal")
             return
 
         named_params = {}
         if lang:
             named_params["lang"] = escape_str(lang)
         self.append_inline_fun(
+            node,
             name="raw",
             named_params=named_params,
             positional_params=[escape_raw_str(node.astext())],
@@ -454,22 +481,23 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_inline(self, node: Element) -> None:
         if "accelerator" in node["classes"]:
-            self.append_inline_fun(name="accelerator")
+            self.append_inline_fun(node, name="accelerator")
             return
 
         if "menuselection" in node["classes"]:
-            self.append_inline_fun(name="menuselection")
+            self.append_inline_fun(node, name="menuselection")
             return
 
         if "guilabel" in node["classes"]:
-            self.append_inline_fun(name="guilabel")
+            self.append_inline_fun(node, name="guilabel")
             return
 
         if "versionmodified" in node["classes"]:
-            self.append_inline_fun(name="versionmodified")
+            self.append_inline_fun(node, name="versionmodified")
             return
 
         self.append_inline_fun(
+            node,
             name="inline",
             named_params={"classes": to_str_list(node["classes"])},
             force_body=True,
@@ -484,6 +512,7 @@ class TypstTranslator(SphinxTranslator):
             named_params["explanation"] = escape_str(node["explanation"])
 
         self.append_inline_fun(
+            node,
             name="abbreviation",
             named_params=named_params,
             positional_params=[escape_str(node.astext())],
@@ -506,9 +535,9 @@ class TypstTranslator(SphinxTranslator):
         internal = node.get("internal", False)
 
         if internal:
-            self.append_inline_fun(name="internal-link")
+            self.append_inline_fun(node, name="internal-link")
         else:
-            self.append_inline_fun(name="link")
+            self.append_inline_fun(node, name="link")
 
         if "refuri" in node and not internal:
             self.curr_element().positional_params.append(escape_str(node["refuri"]))
@@ -527,6 +556,7 @@ class TypstTranslator(SphinxTranslator):
     def visit_download_reference(self, node: Element) -> None:
         # There doesn't seem to be a way of creating a link to an attachment
         self.append_inline_fun(
+            node,
             name="pdf.attach",
             positional_params=[escape_str(node["filename"])],
             named_params={"description": escape_str(node["reftarget"])},
@@ -546,6 +576,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_footnote_reference(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="footnote",
             positional_params=[f"footnote-content({escape_str(node['refid'])})"],
         )
@@ -554,6 +585,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_footnote(self, node: Element) -> None:
         self.append_block_fun(
+            node,
             name="register_footnote",
             positional_params=[escape_str(node["ids"][0])],
         )
@@ -563,8 +595,8 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_citation(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="citation",
-            labels=self.register_labels(node["ids"]),
         )
 
     def depart_citation(self, _node: Element) -> None:
@@ -574,7 +606,7 @@ class TypstTranslator(SphinxTranslator):
         if isinstance(node.parent, nodes.footnote):
             raise nodes.SkipNode
 
-        self.append_inline_code_fun(name="reference_label")
+        self.append_inline_code_fun(node, name="reference_label")
 
     def depart_label(self, _node: Element) -> None:
         el = self.pop_el()
@@ -587,14 +619,18 @@ class TypstTranslator(SphinxTranslator):
             node.parent,
             (nodes.Admonition, nodes.topic, nodes.sidebar, nodes.table),
         ):
-            self.append_el(MarkupArg())
+            self.append_markup_arg(node)
             return
 
         if self.this_is_the_title:
             self.this_is_the_title = False
             raise nodes.SkipNode
 
-        self.append_block_fun(name="heading", named_params={"level": self.sectionlevel})
+        self.append_block_fun(
+            node,
+            name="heading",
+            named_params={"level": self.sectionlevel},
+        )
 
     def depart_title(self, node: Element) -> None:
         if isinstance(node.parent, (nodes.Admonition, nodes.topic, nodes.sidebar)):
@@ -611,7 +647,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_subtitle(self, node: Element) -> None:
         if isinstance(node.parent, nodes.sidebar):
-            self.append_el(MarkupArg())
+            self.append_markup_arg(node)
 
     def depart_subtitle(self, node: Element) -> None:
         if isinstance(node.parent, nodes.sidebar):
@@ -639,13 +675,11 @@ class TypstTranslator(SphinxTranslator):
             )
             and not self.curr_element().body
         ):
-            # TODO: rename "Document" into something else,
-            # it's just a container for unprocessed stuff
-            self.append_el(Document())
+            self.append_unprocessed(node)
             return
 
         # self.curr_element().body.append("\n")
-        self.append_block_fun(name="par", force_body=True)
+        self.append_block_fun(node, name="par", force_body=True)
 
     def depart_paragraph(self, _node: Element) -> None:
         # self.curr_element().body.append("\n")
@@ -653,20 +687,20 @@ class TypstTranslator(SphinxTranslator):
 
     # Lists
 
-    def visit_bullet_list(self, _node: Element) -> None:
-        self.append_block_fun(name="list")
+    def visit_bullet_list(self, node: Element) -> None:
+        self.append_block_fun(node, name="list")
 
     def depart_bullet_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_enumerated_list(self, _node: Element) -> None:
-        self.append_block_fun(name="enum")
+    def visit_enumerated_list(self, node: Element) -> None:
+        self.append_block_fun(node, name="enum")
 
     def depart_enumerated_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_list_item(self, _node: Element) -> None:
-        self.append_el(MarkupArg())
+    def visit_list_item(self, node: Element) -> None:
+        self.append_markup_arg(node)
 
     def depart_list_item(self, _node: Element) -> None:
         el = self.pop_el()
@@ -674,8 +708,8 @@ class TypstTranslator(SphinxTranslator):
 
     # Definition lists
 
-    def visit_definition_list(self, _node: Element) -> None:
-        self.append_block_fun(name="terms")
+    def visit_definition_list(self, node: Element) -> None:
+        self.append_block_fun(node, name="terms")
 
     def depart_definition_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -686,21 +720,21 @@ class TypstTranslator(SphinxTranslator):
     # Term 2
     #     Definition for both
     def visit_definition_list_item(self, node: Element) -> None:
-        self.append_block_code_fun(name="terms.item")
+        self.append_block_code_fun(node, name="terms.item")
 
     def depart_definition_list_item(self, _node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
     def visit_term(self, node: Element) -> None:
-        self.append_el(MarkupArg(labels=self.register_labels(node["ids"])))
+        self.append_markup_arg(node)
 
     def depart_term(self, _node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
     def visit_definition(self, node: Element) -> None:
-        self.append_el(MarkupArg())
+        self.append_markup_arg(node)
 
     def depart_definition(self, _node: Element) -> None:
         el = self.pop_el()
@@ -708,28 +742,28 @@ class TypstTranslator(SphinxTranslator):
 
     # Field lists
 
-    def visit_field_list(self, _node: Element) -> None:
-        self.append_block_fun(name="field_list")
+    def visit_field_list(self, node: Element) -> None:
+        self.append_block_fun(node, name="field_list")
 
     def depart_field_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_field(self, node: Element) -> None:
-        self.append_block_code_fun(name="field_item")
+        self.append_block_code_fun(node, name="field_item")
 
     def depart_field(self, _node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
     def visit_field_name(self, node: Element) -> None:
-        self.append_el(MarkupArg(labels=self.register_labels(node["ids"])))
+        self.append_markup_arg(node)
 
     def depart_field_name(self, _node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
     def visit_field_body(self, node: Element) -> None:
-        self.append_el(MarkupArg())
+        self.append_markup_arg(node)
 
     def depart_field_body(self, _node: Element) -> None:
         el = self.pop_el()
@@ -738,20 +772,20 @@ class TypstTranslator(SphinxTranslator):
     # Figures / Images / Code blocks
 
     def visit_figure(self, node: Element) -> None:
-        self.append_block_fun(name="figure", labels=self.register_labels(node["ids"]))
+        self.append_block_fun(node, name="figure")
 
     def depart_figure(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_caption(self, node: Element) -> None:
-        self.append_el(MarkupArg())
+        self.append_markup_arg(node)
 
     def depart_caption(self, node: Element) -> None:
         el = self.pop_el()
         self.curr_element().named_params["caption"] = el
 
     def visit_legend(self, node: Element) -> None:
-        self.append_el(Document())
+        self.append_unprocessed(node)
 
     def depart_legend(self, node: Element) -> None:
         el = self.pop_el()
@@ -767,7 +801,11 @@ class TypstTranslator(SphinxTranslator):
         else:
             logger.warning("missing image %s", node["uri"])
             image = node["uri"]
-        self.append_inline_fun(name="image", positional_params=[escape_raw_str(image)])
+        self.append_inline_fun(
+            node,
+            name="image",
+            positional_params=[escape_raw_str(image)],
+        )
 
         width = node.get("width")
         if width is None:
@@ -791,6 +829,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_literal_block(self, node: Element) -> None:
         self.append_block_fun(
+            node,
             name="raw",
             named_params={"block": "true", "lang": escape_str(node["language"])},
             positional_params=[escape_raw_str(node.astext())],
@@ -800,14 +839,14 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().body = []
         self.absorb_fun_in_body()
 
-    def visit_block_quote(self, _node: Element) -> None:
-        self.append_block_fun(name="quote", named_params={"block": "true"})
+    def visit_block_quote(self, node: Element) -> None:
+        self.append_block_fun(node, name="quote", named_params={"block": "true"})
 
     def depart_block_quote(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_attribution(self, node: Element) -> None:
-        self.append_el(MarkupArg())
+        self.append_markup_arg(node)
 
     def depart_attribution(self, node: Element) -> None:
         el = self.pop_el()
@@ -842,7 +881,7 @@ class TypstTranslator(SphinxTranslator):
         pass
 
     def visit_thead(self, node: Element) -> None:
-        self.append_inline_code_fun(name="table.header")
+        self.append_inline_code_fun(node, name="table.header")
 
     def depart_thead(self, node: Element) -> None:
         el = self.pop_el()
@@ -874,6 +913,7 @@ class TypstTranslator(SphinxTranslator):
         colspan = 1 + node.get("morecols", 0)
         rowspan = 1 + node.get("morerows", 0)
         self.append_inline_code_fun(
+            node,
             "table.cell",
             named_params={
                 "colspan": colspan,
@@ -895,13 +935,13 @@ class TypstTranslator(SphinxTranslator):
     # Line blocks
 
     def visit_line_block(self, node: Element) -> None:
-        self.append_block_fun(name="line_block")
+        self.append_block_fun(node, name="line_block")
 
     def depart_line_block(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_line(self, node: Element) -> None:
-        self.append_inline_fun(name="line_block_line")
+        self.append_inline_fun(node, name="line_block_line")
 
     def depart_line(self, node: Element) -> None:
         self.absorb_fun_in_body()
@@ -909,25 +949,26 @@ class TypstTranslator(SphinxTranslator):
     # Other directives
 
     def visit_rubric(self, node: Element) -> None:
-        self.append_inline_fun(name="rubric", labels=self.register_labels(node["ids"]))
+        self.append_inline_fun(node, name="rubric")
 
     def depart_rubric(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_topic(self, _node: Element) -> None:
-        self.append_block_fun(name="topic")
+    def visit_topic(self, node: Element) -> None:
+        self.append_block_fun(node, name="topic")
 
     def depart_topic(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_sidebar(self, _node: Element) -> None:
-        self.append_block_fun(name="sidebar")
+    def visit_sidebar(self, node: Element) -> None:
+        self.append_block_fun(node, name="sidebar")
 
     def depart_sidebar(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_hlist(self, node: Element) -> None:
         self.append_block_fun(
+            node,
             name="columns",
             positional_params=[node["ncolumns"]],
         )
@@ -941,8 +982,8 @@ class TypstTranslator(SphinxTranslator):
     def depart_hlistcol(self, _node: Element) -> None:
         self.curr_element().body.append("#colbreak()\n")
 
-    def visit_centered(self, _node: Element) -> None:
-        self.append_block_fun(name="align", positional_params=["center"])
+    def visit_centered(self, node: Element) -> None:
+        self.append_block_fun(node, name="align", positional_params=["center"])
 
     def depart_centered(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -977,14 +1018,14 @@ class TypstTranslator(SphinxTranslator):
 
     # Admonitions
 
-    def visit_admonition(self, _node: Element) -> None:
-        self.append_block_fun(name="admonition")
+    def visit_admonition(self, node: Element) -> None:
+        self.append_block_fun(node, name="admonition")
 
     def depart_admonition(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def _visit_named_admonition(self, node: Element) -> None:
-        self.append_block_fun(name=node.tagname)
+        self.append_block_fun(node, name=node.tagname)
 
     def _depart_named_admonition(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -1011,23 +1052,21 @@ class TypstTranslator(SphinxTranslator):
     depart_seealso = _depart_named_admonition
 
     def visit_versionmodified(self, node: Element) -> None:
-        self.append_block_fun(name=node["type"])
+        self.append_block_fun(node, name=node["type"])
 
     def depart_versionmodified(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
     # Signatures / objects
 
-    def visit_desc(self, _node: Element) -> None:
-        self.append_block_fun(name="desc")
+    def visit_desc(self, node: Element) -> None:
+        self.append_block_fun(node, name="desc")
 
     def depart_desc(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_desc_signature(self, node: Element) -> None:
-        self.append_block_fun(
-            name="desc_signature", labels=self.register_labels(node["ids"])
-        )
+        self.append_block_fun(node, name="desc_signature")
 
     def depart_desc_signature(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -1041,6 +1080,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_desc_name(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="desc_name",
             positional_params=[escape_raw_str(node.astext())],
         )
@@ -1051,6 +1091,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_desc_addname(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="desc_addname",
             positional_params=[escape_raw_str(node.astext())],
         )
@@ -1059,27 +1100,28 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().body = []
         self.absorb_fun_in_body()
 
-    def visit_desc_type(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_type")
+    def visit_desc_type(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_type")
 
     def depart_desc_type(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_desc_type_parameter(self, node: Element) -> None:
-        self.append_el(MarkupArg())
+        self.append_markup_arg(node)
 
     def depart_desc_type_parameter(self, node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
     def visit_desc_type_parameter_list(self, node: Element) -> None:
-        self.append_inline_fun(name="desc_type_parameter_list")
+        self.append_inline_fun(node, name="desc_type_parameter_list")
 
     def depart_desc_type_parameter_list(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_desc_returns(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="desc_returns",
             positional_params=[escape_raw_str(node.astext())],
         )
@@ -1090,6 +1132,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_desc_annotation(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="desc_annotation",
             positional_params=[escape_raw_str(node.astext())],
         )
@@ -1098,20 +1141,21 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().body = []
         self.absorb_fun_in_body()
 
-    def visit_desc_content(self, _node: Element) -> None:
-        self.append_block_fun(name="desc_content")
+    def visit_desc_content(self, node: Element) -> None:
+        self.append_block_fun(node, name="desc_content")
 
     def depart_desc_content(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_inline(self, _node: Element) -> None:
-        self.append_inline_fun(name="literal")
+    def visit_desc_inline(self, node: Element) -> None:
+        self.append_inline_fun(node, name="literal")
 
     def depart_desc_inline(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_desc_parameterlist(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="desc_parameterlist",
             named_params={
                 "open_paren": '"("',
@@ -1123,33 +1167,29 @@ class TypstTranslator(SphinxTranslator):
     def depart_desc_parameterlist(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_parameter(self, _node: Element) -> None:
-        self.append_el(MarkupArg())
-        self.append_inline_fun(name="desc_parameter")
+    def visit_desc_parameter(self, node: Element) -> None:
+        self.append_markup_arg(node)
+        self.append_inline_fun(None, name="desc_parameter")
 
     def depart_desc_parameter(self, _node: Element) -> None:
         self.absorb_fun_in_body()
-        if self.pending_labels:
-            self.curr_element().labels = self.register_labels(self.pending_labels)
-            self.pending_labels = []
-
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
-    def visit_desc_sig_name(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_sig_name")
+    def visit_desc_sig_name(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_sig_name")
 
     def depart_desc_sig_name(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_optional(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_optional")
+    def visit_desc_optional(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_optional")
 
     def depart_desc_optional(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_sig_punctuation(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_sig_punctuation")
+    def visit_desc_sig_punctuation(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_sig_punctuation")
 
     def depart_desc_sig_punctuation(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -1160,34 +1200,34 @@ class TypstTranslator(SphinxTranslator):
     def depart_desc_sig_space(self, _node: Element) -> None:
         pass
 
-    def visit_desc_sig_keyword(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_sig_keyword")
+    def visit_desc_sig_keyword(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_sig_keyword")
 
     def depart_desc_sig_keyword(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_sig_keyword_type(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_sig_keyword_type")
+    def visit_desc_sig_keyword_type(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_sig_keyword_type")
 
     def depart_desc_sig_keyword_type(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_desc_sig_literal_string(self, _node: Element) -> None:
-        self.append_inline_fun(name="desc_sig_literal_string")
+    def visit_desc_sig_literal_string(self, node: Element) -> None:
+        self.append_inline_fun(node, name="desc_sig_literal_string")
 
     def depart_desc_sig_literal_string(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     # Options
 
-    def visit_option_list(self, _node: Element) -> None:
+    def visit_option_list(self, node: Element) -> None:
         # Format:
         #
         # #option_list(
         #   option_group(option["-h"], option["--help"]), [something],
         #   option_group(option(argument: ["file"], delimiter: "=")["--one"]), [something],
         # )
-        self.append_block_fun(name="option_list")
+        self.append_block_fun(node, name="option_list")
 
     def depart_option_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
@@ -1198,28 +1238,28 @@ class TypstTranslator(SphinxTranslator):
     def depart_option_list_item(self, _node: Element) -> None:
         pass
 
-    def visit_option_group(self, _node: Element) -> None:
-        self.append_block_code_fun(name="option_group")
+    def visit_option_group(self, node: Element) -> None:
+        self.append_block_code_fun(node, name="option_group")
 
     def depart_option_group(self, _node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
-    def visit_option(self, _node: Element) -> None:
-        self.append_inline_code_fun("option")
+    def visit_option(self, node: Element) -> None:
+        self.append_inline_code_fun(node, name="option")
 
     def depart_option(self, _node: Element) -> None:
         el = self.pop_el()
         self.curr_element().positional_params.append(el)
 
-    def visit_option_string(self, _node: Element) -> None:
-        self.append_el(Document())
+    def visit_option_string(self, node: Element) -> None:
+        self.append_unprocessed(node)
 
     def depart_option_string(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
-    def visit_option_argument(self, _node: Element) -> None:
-        self.append_el(MarkupArg())
+    def visit_option_argument(self, node: Element) -> None:
+        self.append_markup_arg(node)
 
     def depart_option_argument(self, node: Element) -> None:
         el = self.pop_el()
@@ -1229,8 +1269,8 @@ class TypstTranslator(SphinxTranslator):
                 node["delimiter"]
             )
 
-    def visit_description(self, _node: Element) -> None:
-        self.append_el(MarkupArg())
+    def visit_description(self, node: Element) -> None:
+        self.append_markup_arg(node)
 
     def depart_description(self, _node: Element) -> None:
         el = self.pop_el()
@@ -1238,14 +1278,15 @@ class TypstTranslator(SphinxTranslator):
 
     # Others
 
-    def visit_transition(self, _node: Element) -> None:
-        self.append_block_fun(name="horizontalrule")
+    def visit_transition(self, node: Element) -> None:
+        self.append_block_fun(node, name="horizontalrule")
 
     def depart_transition(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
     def visit_problematic(self, node: Element) -> None:
         self.append_inline_fun(
+            node,
             name="text",
             named_params={"fill": "red"},
             positional_params=[escape_str(node.astext())],
@@ -1263,7 +1304,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_raw(self, node: Element) -> None:
         if "typst" in node.get("format", "").split():
-            self.append_el(Document(body=[node.astext(), "\n"]))
+            self.append_unprocessed(node, body=[node.astext(), "\n"])
             self.absorb_fun_in_body()
         raise nodes.SkipNode
 
@@ -1271,15 +1312,24 @@ class TypstTranslator(SphinxTranslator):
         raise nodes.SkipNode
 
     def visit_math(self, node: Element) -> None:
-        self.append_el(Math(block=False, body=node.astext()))
+        self.append_el(
+            Math(
+                block=False,
+                body=node.astext(),
+                labels=self.register_labels(node["ids"]),
+            ),
+        )
         self.absorb_fun_in_body()
         raise nodes.SkipNode
 
     def visit_math_block(self, node: Element) -> None:
-        if "ids" in node:
-            self.pending_labels += node["ids"]
-
-        self.append_el(Math(block=True, body=node.astext()))
+        self.append_el(
+            Math(
+                block=True,
+                body=node.astext(),
+                labels=self.register_labels(node["ids"]),
+            ),
+        )
         self.absorb_fun_in_body()
         raise nodes.SkipNode
 
