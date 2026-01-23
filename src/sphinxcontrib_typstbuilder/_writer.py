@@ -876,6 +876,15 @@ class TypstTranslator(SphinxTranslator):
     def depart_topic(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    visit_productionlist = visit_literal
+    depart_productionlist = depart_literal
+
+    def visit_production(self, _node: Element) -> None:
+        pass
+
+    def depart_production(self, _node: Element) -> None:
+        self.curr_element().body.append(" \\\n")
+
     # Glossary / Indices
 
     def visit_glossary(self, node: Element) -> None:
