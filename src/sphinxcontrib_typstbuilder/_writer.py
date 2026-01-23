@@ -766,6 +766,13 @@ class TypstTranslator(SphinxTranslator):
     def depart_block_quote(self, node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_attribution(self, node: Element) -> None:
+        self.append_el(MarkupArg())
+
+    def depart_attribution(self, node: Element) -> None:
+        el = self.pop_el()
+        self.curr_element().named_params["attribution"] = el
+
     # Tables
 
     def visit_table(self, node: Element) -> None:
