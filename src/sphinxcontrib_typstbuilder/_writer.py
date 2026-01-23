@@ -929,6 +929,13 @@ class TypstTranslator(SphinxTranslator):
     def depart_centered(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    # TODO: as comma-separated list?
+    def visit_acks(self, _node: Element) -> None:
+        pass
+
+    def depart_acks(self, _node: Element) -> None:
+        pass
+
     visit_productionlist = visit_literal
     depart_productionlist = depart_literal
 
