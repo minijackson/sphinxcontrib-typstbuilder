@@ -1,5 +1,4 @@
 from __future__ import annotations
-from sphinx.util.osutil import ensuredir
 
 import json
 from importlib import resources
@@ -15,6 +14,7 @@ from sphinx.util.display import progress_message, status_iterator
 from sphinx.util.docutils import SphinxFileOutput
 from sphinx.util.fileutil import copy_asset, copy_asset_file
 from sphinx.util.nodes import inline_all_toctrees
+from sphinx.util.osutil import ensuredir
 
 from . import templates
 from ._writer import TypstTranslator, TypstWriter, document_label
@@ -41,9 +41,6 @@ class TypstBuilder(Builder):
     ]
 
     default_translator_class = TypstTranslator
-
-    def init(self) -> None:
-        print("init!")
 
     def get_outdated_docs(self) -> str | Iterable[str]:
         return "all documents"
