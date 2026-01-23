@@ -908,6 +908,12 @@ class TypstTranslator(SphinxTranslator):
     def depart_sidebar(self, _node: Element) -> None:
         self.absorb_fun_in_body()
 
+    def visit_centered(self, _node: Element) -> None:
+        self.append_block_fun(name="align", positional_params=["center"])
+
+    def depart_centered(self, _node: Element) -> None:
+        self.absorb_fun_in_body()
+
     visit_productionlist = visit_literal
     depart_productionlist = depart_literal
 
