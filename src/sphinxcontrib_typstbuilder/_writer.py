@@ -702,7 +702,11 @@ class TypstTranslator(SphinxTranslator):
     # Lists
 
     def visit_bullet_list(self, node: Element) -> None:
-        self.append_block_fun(node, name="list")
+        self.append_block_fun(
+            node,
+            name="list",
+            named_params={"tight": "false"},
+        )
 
     def depart_bullet_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
