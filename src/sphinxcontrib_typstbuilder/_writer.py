@@ -727,7 +727,11 @@ class TypstTranslator(SphinxTranslator):
     # Definition lists
 
     def visit_definition_list(self, node: Element) -> None:
-        self.append_block_fun(node, name="terms")
+        self.append_block_fun(
+            node,
+            name="terms",
+            named_params={"tight": "false"},
+        )
 
     def depart_definition_list(self, _node: Element) -> None:
         self.absorb_fun_in_body()
