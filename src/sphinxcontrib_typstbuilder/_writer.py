@@ -34,7 +34,6 @@ class TypstWriter(writers.Writer):
         self.document.walkabout(visitor)
         translator = cast(TypstTranslator, visitor)
         self.output = translator.body()
-        self.label_aliases = translator.label_aliases
 
 
 @dataclass
@@ -50,7 +49,7 @@ class CodeFunction:
     """A function in code mode."""
 
     name: str
-    named_params: dict[str, str] = field(default_factory=dict)
+    named_params: dict[str, str | None] = field(default_factory=dict)
     positional_params: list[str] = field(default_factory=list)
     body: list[str] = field(default_factory=list)
     labels: list[str] = field(default_factory=list)
@@ -75,14 +74,14 @@ class CodeFunction:
 
         labels = ""
         for label in self.labels:
-            labels += f" #label({escape_str(label)})"
+            labels += f"mlabel({escape_str(label)})#"
 
         args_sep = ", " if named and pos else ""
         args = f"({named}{args_sep}{pos})"
         if args == "()" and body:
             args = ""
 
-        return f"{self.name}{args}{body}{labels}"
+        return f"{labels}{self.name}{args}{body}"
 
 
 class BlockCodeFunction(CodeFunction):
@@ -151,9 +150,9 @@ class MarkupArg:
 
         labels = ""
         for label in self.labels:
-            labels += f" #label({escape_str(label)})"
+            labels += f"#mlabel({escape_str(label)})"
 
-        return f"[{body}{labels}]"
+        return f"[{labels}{body}]"
 
 
 @dataclass
@@ -178,7 +177,7 @@ class Math:
 
         labels = ""
         for label in self.labels:
-            labels += f" #label({escape_str(label)})"
+            labels += f"#mlabel({escape_str(label)})"
 
         return f"${ws}{body}{ws}${labels}"
 
@@ -265,7 +264,6 @@ class TypstTranslator(SphinxTranslator):
         self.this_is_the_title = True
 
         self.pending_labels: list[str] = []
-        self.label_aliases = {}
 
     def curr_element(self) -> Any:
         return self.curr_elements[-1]
@@ -279,58 +277,54 @@ class TypstTranslator(SphinxTranslator):
     def append_inline_fun(self, node: Element | None, *args, **kwargs) -> None:
         el = InlineMarkupFunction(*args, **kwargs)
         if node is not None:
-            el.labels = self.register_labels(node["ids"])
+            el.labels += self.label_refs(node["ids"])
+        el.labels += self.pending_labels
+        self.pending_labels = []
         self.append_el(el)
 
     def append_block_fun(self, node: Element | None, *args, **kwargs) -> None:
         el = BlockMarkupFunction(*args, **kwargs)
         if node is not None:
-            el.labels = self.register_labels(node["ids"])
+            el.labels += self.label_refs(node["ids"])
+        el.labels += self.pending_labels
+        self.pending_labels = []
         self.append_el(el)
 
     def append_inline_code_fun(self, node: Element | None, *args, **kwargs) -> None:
         el = InlineCodeFunction(*args, **kwargs)
         if node is not None:
-            el.labels = self.register_labels(node["ids"])
+            el.labels += self.label_refs(node["ids"])
+        el.labels += self.pending_labels
+        self.pending_labels = []
         self.append_el(el)
 
     def append_block_code_fun(self, node: Element | None, *args, **kwargs) -> None:
         el = BlockCodeFunction(*args, **kwargs)
         if node is not None:
-            el.labels = self.register_labels(node["ids"])
+            el.labels += self.label_refs(node["ids"])
+        el.labels += self.pending_labels
+        self.pending_labels = []
         self.append_el(el)
 
     def append_unprocessed(self, node: Element | None, *args, **kwargs) -> None:
         el = Unprocessed(*args, **kwargs)
         if node is not None:
-            self.pending_labels += node["ids"]
+            self.add_pending_labels(node["ids"])
         self.append_el(el)
 
     def append_markup_arg(self, node: Element | None, *args, **kwargs) -> None:
         el = MarkupArg(*args, **kwargs)
         if node is not None:
-            el.labels = self.register_labels(node["ids"])
+            el.labels += self.label_refs(node["ids"])
+        el.labels += self.pending_labels
+        self.pending_labels = []
+
         self.append_el(el)
 
-    def register_labels(self, labels: list[str]) -> list[str]:
-        """Register a list of document labels, and return only the main one."""
-        if not labels:
-            return []
-
-        main_label = self.label_ref(labels[0])
-
-        for label in labels:
-            self.label_aliases[self.label_ref(label)] = main_label
-
-        return [main_label]
+    def add_pending_labels(self, labels: list[str]) -> None:
+        self.pending_labels += map(self.label_ref, labels)
 
     def absorb_fun_in_body(self) -> str:
-        if self.pending_labels:
-            self.curr_element().labels = self.register_labels(self.pending_labels)
-            self.pending_labels = []
-
-        # self.curr_element().labels = self.pending_labels
-        # self.pending_labels = []
         el = self.pop_el()
         self.curr_element().body.append(el)
 
@@ -339,6 +333,9 @@ class TypstTranslator(SphinxTranslator):
             label = "%" + self.curr_files[-1] + "#" + label
 
         return label
+
+    def label_refs(self, labels: list[str]) -> list[str]:
+        return list(map(self.label_ref, labels))
 
     def body(self) -> str:
         if len(self.curr_elements) != 1:
@@ -351,16 +348,6 @@ class TypstTranslator(SphinxTranslator):
 #import "templates/{self.template}.typ": *
 
 #let metadata = json("metadata.json")
-#let label-aliases = metadata.at("label_aliases")
-
-#let internal-link(dest, body) = {{
-  let l = label-aliases.at(dest, default: none)
-  if l == none {{
-    missing_link(dest, body)
-  }} else {{
-	link(label(l), body)
-  }}
-}}
 
 #let footnote-content(id) = context state("footnote-" + id).final()
 
@@ -389,7 +376,7 @@ class TypstTranslator(SphinxTranslator):
         self.curr_files.pop()
 
     def visit_compound(self, node: Element) -> None:
-        pass
+        self.add_pending_labels(node["ids"])
 
     def depart_compound(self, node: Element) -> None:
         pass
@@ -398,8 +385,7 @@ class TypstTranslator(SphinxTranslator):
         if not self.this_is_the_title:
             self.sectionlevel += 1
 
-        if "ids" in node:
-            self.pending_labels += node["ids"]
+        self.add_pending_labels(node["ids"])
 
     def depart_section(self, _node: Element) -> None:
         self.sectionlevel = max(0, self.sectionlevel - 1)
@@ -556,6 +542,12 @@ class TypstTranslator(SphinxTranslator):
                 escape_str(self.label_ref(node["refuri"])),
             )
         else:
+            # XXX: for some reason, citation references from another document
+            # doesn't have the full `refuri`, and only the `refid`?
+            # This is weird because it doesn't show up in the pseudoxml format,
+            # which has the `refuri`, but not us…
+            #
+            # So this currently doesn't work for citation references…
             self.curr_element().positional_params.append(
                 escape_str(self.label_ref(node["refid"])),
             )
@@ -581,7 +573,7 @@ class TypstTranslator(SphinxTranslator):
         pass
 
     def visit_target(self, node: Element) -> None:
-        pass
+        self.add_pending_labels(node["ids"])
 
     def depart_target(self, _node: Element) -> None:
         pass
@@ -878,7 +870,7 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         table = Table(node)
-        table.labels = self.register_labels(node["ids"])
+        table.labels = self.label_refs(node["ids"])
         self.append_el(table)
 
     def depart_table(self, _node: Element) -> None:
@@ -1338,7 +1330,7 @@ class TypstTranslator(SphinxTranslator):
             Math(
                 block=False,
                 body=node.astext(),
-                labels=self.register_labels(node["ids"]),
+                labels=self.label_refs(node["ids"]),
             ),
         )
         self.absorb_fun_in_body()
@@ -1349,7 +1341,7 @@ class TypstTranslator(SphinxTranslator):
             Math(
                 block=True,
                 body=node.astext(),
-                labels=self.register_labels(node["ids"]),
+                labels=self.label_refs(node["ids"]),
             ),
         )
         self.absorb_fun_in_body()

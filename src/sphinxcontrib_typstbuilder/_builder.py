@@ -124,7 +124,7 @@ class TypstBuilder(Builder):
         self._copy_images(outdir)
         self._copy_download_files(outdir)
         self._copy_template(template, outdir)
-        self._write_metadata(title, docwriter.label_aliases, extra_metadata, outdir)
+        self._write_metadata(title, extra_metadata, outdir)
 
     def _copy_images(self, outdir: Path) -> None:
         # for image in self.images:
@@ -215,7 +215,6 @@ class TypstBuilder(Builder):
     def _write_metadata(
         self,
         title: str,
-        label_aliases: dict[str, str],
         extra_metadata: dict[str, Any],
         outdir: Path,
     ) -> None:
@@ -229,7 +228,6 @@ class TypstBuilder(Builder):
                 "day": self.config.typst_date.day,
             },
             "language": self.config.language,
-            "label_aliases": label_aliases,
         }
         metadata.update(extra_metadata)
         with filepath.open("w") as f:

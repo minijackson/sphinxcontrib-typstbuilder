@@ -8,6 +8,13 @@
   linguify.linguify(content, from: _translations)
 }
 
+// Like "label()", but with a HACK to support having multiple labels
+// for a given element
+// See: https://github.com/typst/typst/discussions/2457
+#let mlabel(l) = [#metadata(none)#label(l)]
+
+#let internal-link(l, title) = link(label(l), title)
+
 // Given a dictionary of year, month, date,
 // return a datetime object
 #let get_date(date) = {

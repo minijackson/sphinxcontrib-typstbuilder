@@ -13,9 +13,20 @@ stdenvNoCC.mkDerivation (final: {
   sourceRoot = "${final.src.name}/tests/roots/test-root";
 
   patches = [
+    # Due to extensions not supporting the Typst
     ./skip-extensions.patch
+
+    # Due to what I think is a Sphinx bug,
+    # see: https://github.com/sphinx-doc/sphinx/pull/14288
+    ./skip-citation-refs.patch
+
+    # We currently don't support multiple terms
     ./temp-term-list.patch
+
+    # We currently only support Typst math
     ./typst-math.patch
+
+    # Due to a Typst bug when embedding an empty file
     ./includes.patch
   ];
 
