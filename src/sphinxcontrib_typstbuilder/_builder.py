@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING, Any, ClassVar
 
 from sphinx.builders import Builder
 from sphinx.environment.adapters.asset import ImageAdapter
-from sphinx.errors import ConfigError
+from sphinx.errors import ConfigError, NoUri
 from sphinx.locale import _, __
 from sphinx.util.console import darkgreen
 from sphinx.util.display import progress_message, status_iterator
@@ -45,7 +45,9 @@ class TypstBuilder(Builder):
     def get_outdated_docs(self) -> str | Iterable[str]:
         return "all documents"
 
-    def get_target_uri(self, docname: str, _typ: str | None = None) -> str:
+    def get_target_uri(self, docname: str, typ: str | None = None) -> str:
+        if docname not in self.docnames:
+            raise NoUri(docname, typ)
         return document_label(docname)
 
     def get_relative_uri(self, _from: str, to: str, typ: str | None = None) -> str:
@@ -57,6 +59,7 @@ class TypstBuilder(Builder):
         startdocname: str,
         appendices: list[str],
     ) -> nodes.document:
+        self.docnames = {startdocname, *appendices}
         tree = self.env.get_doctree(startdocname)
         tree = inline_all_toctrees(
             self,
