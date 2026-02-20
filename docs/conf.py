@@ -13,7 +13,7 @@ sys.path.append(os.path.abspath("../src"))  # noqa: PTH100
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
 
 project = "sphinxcontrib-typstbuilder"
-copyright = "Minijackson"
+copyright = "2024-%Y, Minijackson"
 author = "Minijackson"
 release = "0.1.0"
 
