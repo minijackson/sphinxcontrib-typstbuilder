@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "sphinxcontrib-typstbuilder"
-version = "0.1.0"
+version = "0.1.1.dev1"
 description = "Build PDF from your Sphinx documentation using Typst"
 readme = "README.md"
 requires-python = ">=3.10"
