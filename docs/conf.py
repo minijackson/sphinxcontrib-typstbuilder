@@ -3,6 +3,7 @@
 # For the full list of built-in configuration values, see the documentation:
 # https://www.sphinx-doc.org/en/master/usage/configuration.html
 
+import importlib.metadata
 import os
 import sys
 from datetime import date
@@ -15,7 +16,11 @@ sys.path.append(os.path.abspath("../src"))  # noqa: PTH100
 project = "sphinxcontrib-typstbuilder"
 copyright = "2024-%Y, Minijackson"
 author = "Minijackson"
-release = "0.1.0"
+# If inside the nix shell, "version" is parsed from the `pyproject.toml`
+# even if the package is not properly installed
+release = os.environ.get("version") or importlib.metadata.version(
+    "sphinxcontrib-typstbuilder"
+)
 
 source_repository = "https://github.com/minijackson/sphinxcontrib-typstbuilder"
 

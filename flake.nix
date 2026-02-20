@@ -24,36 +24,6 @@
       };
     in
     {
-      devShells.x86_64-linux.default =
-        let
-          pkgs = nixpkgs.legacyPackages.x86_64-linux;
-          python = pkgs.python3;
-
-          arg = project.renderers.withPackages {
-            inherit python;
-            extras = [
-              "docs"
-              "tests"
-            ];
-          };
-          pythonEnv = python.withPackages arg;
-        in
-        pkgs.mkShell {
-          packages = [
-            pythonEnv
-            pkgs.hatch
-            pkgs.typst
-          ];
-          env = {
-            LAST_MODIFIED = self.lastModifiedDate;
-            TYPST_FONT_PATHS = pkgs.lib.makeSearchPath "share/fonts" [
-              pkgs.fira-code
-              pkgs.iosevka
-              pkgs.libertinus
-            ];
-          };
-        };
-
       packages.x86_64-linux = {
         inherit (pkgs.python3.pkgs) sphinxcontrib-typstbuilder;
         default = self.packages.x86_64-linux.sphinxcontrib-typstbuilder;
