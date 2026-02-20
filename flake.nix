@@ -47,6 +47,7 @@
               in
               (python.pkgs.buildPythonPackage attrs).overrideAttrs (old: {
                 nativeBuildInputs = (old.nativeBuildInputs or [ ]) ++ [
+                  pkgs.typst
                   python.pkgs.sphinxHook
                   python.pkgs.pytestCheckHook
                 ];
