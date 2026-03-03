@@ -46,7 +46,7 @@ class TypstBuilder(Builder):
         return "all documents"
 
     def get_target_uri(self, docname: str, typ: str | None = None) -> str:
-        if docname not in self.docnames:
+        if self.config.typst_ignore_outside_references and docname not in self.docnames:
             raise NoUri(docname, typ)
         return document_label(docname)
 

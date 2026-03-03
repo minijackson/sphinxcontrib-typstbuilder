@@ -38,6 +38,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
         "",
         list[dict[str, str]],
     )
+    app.add_config_value("typst_ignore_outside_references", True, "", bool)
 
     return {
         "version": "0.1.0",
