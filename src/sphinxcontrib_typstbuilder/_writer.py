@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass, field
+from pathlib import Path
 from textwrap import indent
 from typing import TYPE_CHECKING, Any, cast
 
@@ -32,7 +33,7 @@ class TypstWriter(writers.Writer):
     def translate(self) -> None:
         visitor = self.builder.create_translator(self.document, self.builder)
         self.document.walkabout(visitor)
-        translator = cast(TypstTranslator, visitor)
+        translator = cast("TypstTranslator", visitor)
         self.output = translator.body()
 
 
@@ -132,7 +133,7 @@ class Table(BlockMarkupFunction):
                     "columns": columns,
                 },
                 positional_params=self.cells,
-            ).to_text()
+            ).to_text(),
         )
 
         return super().to_text()
@@ -733,6 +734,8 @@ class TypstTranslator(SphinxTranslator):
     # Term 1
     # Term 2
     #     Definition for both
+    #
+    # Maybe collapse them into different paragraphs?
     def visit_definition_list_item(self, node: Element) -> None:
         self.append_block_code_fun(node, name="terms.item")
 
@@ -1280,7 +1283,7 @@ class TypstTranslator(SphinxTranslator):
         self.curr_element().named_params["argument"] = el
         if "delimiter" in node:
             self.curr_element().named_params["delimiter"] = escape_str(
-                node["delimiter"]
+                node["delimiter"],
             )
 
     def visit_description(self, node: Element) -> None:
@@ -1349,3 +1352,36 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_comment(self, _node: Element) -> None:
         raise nodes.SkipNode
+
+    # Extensions
+
+    def visit_graphviz(self, node: Element) -> None:
+        import sphinx.ext.graphviz
+
+        try:
+            relfn, outfn = sphinx.ext.graphviz.render_dot(
+                self,
+                node["code"],
+                node["options"],
+                "svg",
+                filename=node.get("filename"),
+            )
+        except sphinx.ext.graphviz.GraphvizError as exc:
+            logger.warning("dot code %r: %s", node["code"], exc)
+            raise nodes.SkipNode from exc
+
+        if relfn is None or outfn is None:
+            msg = "unexpected return value of the Sphinx GraphViz extension"
+            raise Exception(msg)
+
+        # HACK: we use the `builder.images` dictionary
+        # to copy the image into the Typst document directory,
+        # and so that the `visit_image` knows where it is…
+        node["uri"] = str(Path(outfn).relative_to(self.builder.srcdir))
+        self.builder.images[node["uri"]] = str(relfn)
+
+        # HACK: we're interpreting the `graphviz` node as an `image` node…
+        self.visit_image(node)
+
+    def depart_graphviz(self, node: Element) -> None:
+        self.depart_image(node)

@@ -130,7 +130,6 @@ class TypstBuilder(Builder):
         self._write_metadata(title, extra_metadata, outdir)
 
     def _copy_images(self, outdir: Path) -> None:
-        # for image in self.images:
         stringify_func = ImageAdapter(self.app.env).get_original_image_uri
         for image in status_iterator(
             self.images,
