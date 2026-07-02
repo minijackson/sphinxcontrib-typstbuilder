@@ -63,7 +63,7 @@ class TypstBuilder(Builder):
         tree = self.env.get_doctree(startdocname)
         tree = inline_all_toctrees(
             self,
-            set(),
+            self.docnames,
             startdocname,
             tree,
             darkgreen,
