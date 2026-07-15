@@ -73,16 +73,12 @@ class CodeFunction:
         elif self.force_body:
             body = "[]"
 
-        labels = ""
-        for label in self.labels:
-            labels += f"mlabel({escape_str(label)})#"
-
         args_sep = ", " if named and pos else ""
         args = f"({named}{args_sep}{pos})"
         if args == "()" and body:
             args = ""
 
-        return f"{labels}{self.name}{args}{body}"
+        return f"{self.name}{args}{body}"
 
 
 class BlockCodeFunction(CodeFunction):
@@ -98,7 +94,11 @@ class MarkupFunction(CodeFunction):
     """A function in markup mode."""
 
     def to_text(self) -> str:
-        return "#" + super().to_text()
+        labels = ""
+        for label in self.labels:
+            labels += f"mlabel({escape_str(label)})#"
+
+        return "#" + labels + super().to_text()
 
 
 class BlockMarkupFunction(MarkupFunction):
@@ -293,18 +293,10 @@ class TypstTranslator(SphinxTranslator):
 
     def append_inline_code_fun(self, node: Element | None, *args, **kwargs) -> None:
         el = InlineCodeFunction(*args, **kwargs)
-        if node is not None:
-            el.labels += self.label_refs(node["ids"])
-        el.labels += self.pending_labels
-        self.pending_labels = []
         self.append_el(el)
 
     def append_block_code_fun(self, node: Element | None, *args, **kwargs) -> None:
         el = BlockCodeFunction(*args, **kwargs)
-        if node is not None:
-            el.labels += self.label_refs(node["ids"])
-        el.labels += self.pending_labels
-        self.pending_labels = []
         self.append_el(el)
 
     def append_unprocessed(self, node: Element | None, *args, **kwargs) -> None:
