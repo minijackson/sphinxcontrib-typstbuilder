@@ -180,7 +180,7 @@ class Math:
         for label in self.labels:
             labels += f"#mlabel({escape_str(label)})"
 
-        return f"${ws}{body}{ws}${labels}"
+        return f"{labels}${ws}{body}{ws}$"
 
 
 # Label format (inspired from the LaTeX writer):
@@ -865,7 +865,8 @@ class TypstTranslator(SphinxTranslator):
 
     def visit_table(self, node: Element) -> None:
         table = Table(node)
-        table.labels = self.label_refs(node["ids"])
+        table.labels = self.label_refs(node["ids"]) + self.pending_labels
+        self.pending_labels = []
         self.append_el(table)
 
     def depart_table(self, _node: Element) -> None:
@@ -1325,9 +1326,10 @@ class TypstTranslator(SphinxTranslator):
             Math(
                 block=False,
                 body=node.astext(),
-                labels=self.label_refs(node["ids"]),
+                labels=self.label_refs(node["ids"]) + self.pending_labels,
             ),
         )
+        self.pending_labels = []
         self.absorb_fun_in_body()
         raise nodes.SkipNode
 
@@ -1336,9 +1338,10 @@ class TypstTranslator(SphinxTranslator):
             Math(
                 block=True,
                 body=node.astext(),
-                labels=self.label_refs(node["ids"]),
+                labels=self.label_refs(node["ids"]) + self.pending_labels,
             ),
         )
+        self.pending_labels = []
         self.absorb_fun_in_body()
         raise nodes.SkipNode
 
