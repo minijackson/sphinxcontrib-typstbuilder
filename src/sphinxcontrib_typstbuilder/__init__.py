@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import importlib.metadata
 from datetime import date
 from os import path
 from typing import TYPE_CHECKING
@@ -41,7 +42,7 @@ def setup(app: Sphinx) -> ExtensionMetadata:
     app.add_config_value("typst_ignore_outside_references", True, "", bool)
 
     return {
-        "version": "0.1.0",
+        "version": importlib.metadata.version("sphinxcontrib-typstbuilder"),
         "parallel_read_safe": True,
         "parallel_write_safe": True,
     }
